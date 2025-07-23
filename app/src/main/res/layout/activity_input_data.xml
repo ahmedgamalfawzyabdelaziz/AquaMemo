@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/aquamemo_background"
+    android:orientation="horizontal"
+    tools:context=".InputDataActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="@string/input_data_title"
+                android:textColor="#FF000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_view_candle1_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle1_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle1_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_candle2_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle2_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle2_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_candle3_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle3_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle3_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical" android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_candle4_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle4_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/layout_candle4_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle4_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical" android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_candle5_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle5_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/layout_candle5_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle5_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical" android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_candle6_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle6_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/layout_candle6_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle6_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical" android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_candle7_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/candle7_label"
+                android:textColor="#FF000000"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/layout_candle7_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingEnd="16dp"> <Button
+                android:id="@+id/btn_select_candle7_date"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:minWidth="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@string/cd_select_candle_date"
+                android:drawableStart="@drawable/ic_calendar"
+                android:drawablePadding="8dp"
+                android:drawableTint="#FF000000"
+                android:elevation="0dp"
+                android:gravity="center_horizontal|center_vertical" android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:text=""
+                android:hint="@string/select_date_hint"
+                android:textColorHint="#40000000" android:textColor="#FF000000"
+                android:textSize="16sp"
+                app:strokeColor="#FF000000"
+                app:strokeWidth="1dp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_save_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="#6200EE"
+                android:padding="12dp"
+                android:text="@string/save_data_button_text"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btn_back_to_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#6200EE"
+                android:padding="12dp"
+                android:text="@string/back_to_main_button_text"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
