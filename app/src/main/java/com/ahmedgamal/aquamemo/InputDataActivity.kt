@@ -2,8 +2,10 @@ package com.ahmedgamal.aquamemo
 
 import android.app.AlarmManager
 import android.app.DatePickerDialog
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -16,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -47,16 +50,20 @@ class InputDataActivity : AppCompatActivity() {
     private lateinit var btnCandle5Date: Button
     private lateinit var btnCandle6Date: Button
     private lateinit var btnCandle7Date: Button
+    private lateinit var settingsChangeReceiver: BroadcastReceiver
 
     // --- كود تطبيق اللغة: يتم تجاوز attachBaseContext ---
     override fun attachBaseContext(newBase: Context) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(newBase)
-        val languageCode = sharedPreferences.getString(APP_LANGUAGE_KEY, "ar") ?: "ar" // الافتراضي عربي
-
+        // استخدم الثوابت من SettingsActivity للوصول إلى قيم الشيرد بريفيرنسز
+        val languageCode = sharedPreferences.getString(AppConstants.APP_LANGUAGE_KEY, "ar") ?: "ar"
+        val fontSizeScale = sharedPreferences.getFloat(AppConstants.APP_FONT_SIZE_KEY, 1.0f)
         val config = Configuration(newBase.resources.configuration)
         val locale = Locale(languageCode)
-        Locale.setDefault(locale) // لتأثيرات عامة على JVM/أجزاء أخرى
+        Locale.setDefault(locale)
         config.setLocale(locale)
+
+        config.fontScale = fontSizeScale // تطبيق حجم الخط
 
         val context = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             newBase.createConfigurationContext(config)
@@ -73,11 +80,28 @@ class InputDataActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_input_data)
-
+        // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
+        settingsChangeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    AppConstants.ACTION_REFRESH_APP_LANGUAGE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث اللغة
+                    }
+                    AppConstants.ACTION_REFRESH_APP_FONT_SIZE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث حجم الخط
+                    }
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(this).apply {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_LANGUAGE)
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_FONT_SIZE)
+            registerReceiver(settingsChangeReceiver, intentFilter)
+        }
         // استخدم PreferenceManager.getDefaultSharedPreferences(this) هنا أيضًا
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7)
-
         btnCandle1Date = findViewById(R.id.btn_select_candle1_date)
         btnCandle2Date = findViewById(R.id.btn_select_candle2_date)
         btnCandle3Date = findViewById(R.id.btn_select_candle3_date)
@@ -263,7 +287,6 @@ class InputDataActivity : AppCompatActivity() {
             finish()
         }
     }
-
     private fun loadSavedDates(allDateButtons: List<Button>) {
         for (i in 0 until selectedFilterType) {
             val lastChangeDate = sharedPreferences.getString("candle_${i + 1}_install_date", null)
@@ -274,5 +297,9 @@ class InputDataActivity : AppCompatActivity() {
                 allDateButtons[i].hint = getString(R.string.select_date_hint)
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
     }
 }

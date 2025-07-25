@@ -1,7 +1,9 @@
 package com.ahmedgamal.aquamemo
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
@@ -9,11 +11,12 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import java.util.Locale
 
 class SelectFilterActivity : AppCompatActivity() {
-
+    private lateinit var settingsChangeReceiver: BroadcastReceiver
     private lateinit var sharedPreferences: SharedPreferences
     // تأكد أن هذا المفتاح يطابق المفتاح في MainActivity
     private val FILTER_TYPE_KEY = "filter_type"
@@ -23,12 +26,15 @@ class SelectFilterActivity : AppCompatActivity() {
     // --- كود تطبيق اللغة: يتم تجاوز attachBaseContext ---
     override fun attachBaseContext(newBase: Context) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(newBase)
-        val languageCode = sharedPreferences.getString(APP_LANGUAGE_KEY, "ar") ?: "ar" // الافتراضي عربي
-
+        // استخدم الثوابت من SettingsActivity للوصول إلى قيم الشيرد بريفيرنسز
+        val languageCode = sharedPreferences.getString(AppConstants.APP_LANGUAGE_KEY, "ar") ?: "ar"
+        val fontSizeScale = sharedPreferences.getFloat(AppConstants.APP_FONT_SIZE_KEY, 1.0f)
         val config = Configuration(newBase.resources.configuration)
         val locale = Locale(languageCode)
-        Locale.setDefault(locale) // لتأثيرات عامة على JVM/أجزاء أخرى
+        Locale.setDefault(locale)
         config.setLocale(locale)
+
+        config.fontScale = fontSizeScale // تطبيق حجم الخط
 
         val context = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             newBase.createConfigurationContext(config)
@@ -45,7 +51,25 @@ class SelectFilterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // **تأكد أن لديك ملف activity_select_filter.xml في res/layout/**
         setContentView(R.layout.activity_select_filter)
-
+        // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
+        settingsChangeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    AppConstants.ACTION_REFRESH_APP_LANGUAGE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث اللغة
+                    }
+                    AppConstants.ACTION_REFRESH_APP_FONT_SIZE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث حجم الخط
+                    }
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(this).apply {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_LANGUAGE)
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_FONT_SIZE)
+            registerReceiver(settingsChangeReceiver, intentFilter)
+        }
         // استخدم PreferenceManager.getDefaultSharedPreferences(this) هنا أيضًا
         // لضمان استخدام نفس الـ SharedPreferences الخاصة باللغة والتحكمات الأخرى
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -87,5 +111,9 @@ class SelectFilterActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish() // إغلاق SelectFilterActivity بعد الانتقال إلى MainActivity
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
     }
 }

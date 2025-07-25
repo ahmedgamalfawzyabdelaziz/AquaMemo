@@ -147,4 +147,17 @@
     <string name="about_app_version">الإصدار: %s</string>
     <string name="about_app_copyright">جميع الحقوق محفوظة © 2025 أحمد جمال.</string>
     <string name="about_app_acknowledgements">شكر خاص لكل من ساهم في تطوير ودعم هذا التطبيق.</string>
+    <string name="font_size_settings_title">إعدادات حجم الخط</string>
+    <string name="select_font_size">اختيار حجم الخط</string>
+    <string-array name="font_size_options_display_names">
+        <item>صغير جداً</item>
+        <item>صغير</item>
+        <item>عادي</item>
+        <item>كبير</item>
+        <item>كبير جداً</item>
+    </string-array>
+    <string-array name="font_size_options_values">
+        <item>0.85</item> <item>0.95</item> <item>1.0</item>  <item>1.15</item> <item>1.3</item>
+    </string-array>
+    <string name="font_size_changed_restart_prompt">سيتم تطبيق تغيير حجم الخط</string>
 </resources>

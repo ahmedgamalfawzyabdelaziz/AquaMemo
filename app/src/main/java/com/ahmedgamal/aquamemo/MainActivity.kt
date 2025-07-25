@@ -28,6 +28,11 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import android.content.BroadcastReceiver // لإضافة الـ BroadcastReceiver
+import android.content.IntentFilter // لإضافة الـ BroadcastReceiver
+import androidx.localbroadcastmanager.content.LocalBroadcastManager // لإضافة الـ LocalBroadcastManager
+import com.ahmedgamal.aquamemo.SettingsActivity
+import com.ahmedgamal.aquamemo.AppConstants
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layoutExpiringCandles: LinearLayout
     private lateinit var cardNextCandleInfo: CardView
     private lateinit var layoutExpiringCandlesTextDetails: LinearLayout
+    private lateinit var settingsChangeReceiver: BroadcastReceiver
 
     private val candleReplacementPeriods = listOf(3, 6, 6, 21, 21, 24, 24)
     private val FILTER_TYPE_KEY = "filter_type"
@@ -65,12 +71,15 @@ class MainActivity : AppCompatActivity() {
     // --- كود تطبيق اللغة: يتم تجاوز attachBaseContext ---
     override fun attachBaseContext(newBase: Context) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(newBase)
-        val languageCode = sharedPreferences.getString(APP_LANGUAGE_KEY, "ar") ?: "ar" // الافتراضي عربي
-
+        // استخدم الثوابت من SettingsActivity للوصول إلى قيم الشيرد بريفيرنسز
+        val languageCode = sharedPreferences.getString(AppConstants.APP_LANGUAGE_KEY, "ar") ?: "ar"
+        val fontSizeScale = sharedPreferences.getFloat(AppConstants.APP_FONT_SIZE_KEY, 1.0f)
         val config = Configuration(newBase.resources.configuration)
         val locale = Locale(languageCode)
-        Locale.setDefault(locale) // لتأثيرات عامة على JVM/أجزاء أخرى
+        Locale.setDefault(locale)
         config.setLocale(locale)
+
+        config.fontScale = fontSizeScale // تطبيق حجم الخط
 
         val context = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             newBase.createConfigurationContext(config)
@@ -87,9 +96,25 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // استخدم PreferenceManager.getDefaultSharedPreferences(this) هنا أيضًا
-        // لضمان استخدام نفس الـ SharedPreferences الخاصة باللغة
+        // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
+        settingsChangeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    AppConstants.ACTION_REFRESH_APP_LANGUAGE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث اللغة
+                    }
+                    AppConstants.ACTION_REFRESH_APP_FONT_SIZE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث حجم الخط
+                    }
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(this).apply {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_LANGUAGE)
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_FONT_SIZE)
+            registerReceiver(settingsChangeReceiver, intentFilter)
+        }// تهيئة BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7)
 
@@ -128,16 +153,11 @@ class MainActivity : AppCompatActivity() {
         requestNotificationPermissionOnce()
         // *************************************************************
     }
-
     override fun onResume() {
         super.onResume()
         selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7)
         updateCandleDisplayForNextChange()
     }
-
-    // *************************************************************
-    // دالة جديدة لطلب إذن الإشعارات لمرة واحدة
-    // *************************************************************
     private fun requestNotificationPermissionOnce() {
         // نتحقق أولاً ما إذا كان إصدار Android هو 13 أو أعلى
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -164,25 +184,18 @@ class MainActivity : AppCompatActivity() {
                 // يمكنك هنا إضافة منطق لشرح للمستخدم كيفية تمكينه يدوياً إذا لزم الأمر
             }
         }
-        // للإصدارات الأقدم من Android 13، لا يلزم طلب إذن وقت التشغيل للإشعارات،
-        // يتم منحها تلقائياً عند التثبيت إذا كان الإذن موجوداً في Manifest.
     }
-    // *************************************************************
-
-
     private fun updateCandleDisplayForNextChange() {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
         val soonExpiringCandles = mutableListOf<Triple<Int, Long, String>>()
         var overallMinDaysLeft = Long.MAX_VALUE
         var nextCandleToDisplay: Int = -1
-
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
-
         for (i in 0 until selectedFilterType) {
             val installDateString = sharedPreferences.getString("candle_${i + 1}_install_date", null)
             val installTimeString = sharedPreferences.getString("candle_${i + 1}_install_time", "00:00")
@@ -381,5 +394,9 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss() // إغلاق مربع الحوار دون فعل أي شيء آخر
             }
             .show()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
     }
 }

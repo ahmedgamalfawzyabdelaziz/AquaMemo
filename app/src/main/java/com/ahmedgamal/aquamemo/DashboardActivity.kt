@@ -1,7 +1,9 @@
 package com.ahmedgamal.aquamemo
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
@@ -9,6 +11,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -21,6 +24,7 @@ class DashboardActivity : AppCompatActivity() {
     private val candleReplacementPeriods = listOf(3, 6, 6, 21, 21, 24, 24)
 
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var settingsChangeReceiver: BroadcastReceiver
     private val FILTER_TYPE_KEY = "filter_type"
     private var selectedFilterType: Int = 7
     // المفتاح الخاص باللغة، يجب أن يطابق ما هو في SettingsActivity و MainActivity و SelectFilterActivity
@@ -29,12 +33,15 @@ class DashboardActivity : AppCompatActivity() {
     // --- كود تطبيق اللغة: يتم تجاوز attachBaseContext ---
     override fun attachBaseContext(newBase: Context) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(newBase)
-        val languageCode = sharedPreferences.getString(APP_LANGUAGE_KEY, "ar") ?: "ar" // الافتراضي عربي
-
+        // استخدم الثوابت من SettingsActivity للوصول إلى قيم الشيرد بريفيرنسز
+        val languageCode = sharedPreferences.getString(AppConstants.APP_LANGUAGE_KEY, "ar") ?: "ar"
+        val fontSizeScale = sharedPreferences.getFloat(AppConstants.APP_FONT_SIZE_KEY, 1.0f)
         val config = Configuration(newBase.resources.configuration)
         val locale = Locale(languageCode)
-        Locale.setDefault(locale) // لتأثيرات عامة على JVM/أجزاء أخرى
+        Locale.setDefault(locale)
         config.setLocale(locale)
+
+        config.fontScale = fontSizeScale // تطبيق حجم الخط
 
         val context = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             newBase.createConfigurationContext(config)
@@ -50,8 +57,25 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
-
-        // استخدم PreferenceManager.getDefaultSharedPreferences(this) هنا أيضًا
+        // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
+        settingsChangeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    AppConstants.ACTION_REFRESH_APP_LANGUAGE -> { // استخدم AppConstants
+                        recreate() // إعادة إنشاء النشاط لتحديث اللغة
+                    }
+                    AppConstants.ACTION_REFRESH_APP_FONT_SIZE -> { // استخدم AppConstants
+                        recreate()
+                    }
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(this).apply {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_LANGUAGE)
+            intentFilter.addAction(AppConstants.ACTION_REFRESH_APP_FONT_SIZE)
+            registerReceiver(settingsChangeReceiver, intentFilter)
+        }
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7)
 
@@ -135,5 +159,9 @@ class DashboardActivity : AppCompatActivity() {
             val intent = Intent(this, InputDataActivity::class.java)
             startActivity(intent)
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
     }
 }
