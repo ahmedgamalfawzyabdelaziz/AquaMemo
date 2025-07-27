@@ -1,5 +1,6 @@
 package com.ahmedgamal.aquamemo
 
+// START: AdMob Imports
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -13,10 +14,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+
+// END: AdMob Imports
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -25,10 +31,14 @@ class DashboardActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var settingsChangeReceiver: BroadcastReceiver
-    private val FILTER_TYPE_KEY = "filter_type"
+    private val FILTER_TYPE_KEY = "filter_type" // هذا هو الثابت الذي كان مفقودًا
     private var selectedFilterType: Int = 7
     // المفتاح الخاص باللغة، يجب أن يطابق ما هو في SettingsActivity و MainActivity و SelectFilterActivity
     private val APP_LANGUAGE_KEY = "selected_language"
+
+    // START: AdMob Declaration
+    private lateinit var adView: AdView
+    // END: AdMob Declaration
 
     // --- كود تطبيق اللغة: يتم تجاوز attachBaseContext ---
     override fun attachBaseContext(newBase: Context) {
@@ -57,6 +67,14 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+
+        // START: AdMob Initialization and Load
+        MobileAds.initialize(this) {} // تهيئة AdMob SDK
+        adView = findViewById(R.id.adView_dashboard_activity) // ابحث عن الـ AdView في الـ layout
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest) // تحميل الإعلان
+        // END: AdMob Initialization and Load
+
         // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
         settingsChangeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -77,7 +95,7 @@ class DashboardActivity : AppCompatActivity() {
             registerReceiver(settingsChangeReceiver, intentFilter)
         }
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7)
+        selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7) // تم حل مشكلة FILTER_TYPE_KEY هنا
 
         val dashboardTextView: TextView = findViewById(R.id.text_view_dashboard)
         val backToMainButton: Button = findViewById(R.id.btn_back_to_main_dashboard)
@@ -163,5 +181,20 @@ class DashboardActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
+        // START: AdMob AdView Lifecycle
+        adView.destroy()
+        // END: AdMob AdView Lifecycle
     }
+
+    // START: AdMob AdView Lifecycle
+    override fun onResume() {
+        super.onResume()
+        adView.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        adView.pause()
+    }
+    // END: AdMob AdView Lifecycle
 }

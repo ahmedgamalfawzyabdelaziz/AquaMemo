@@ -25,16 +25,16 @@
             android:textColor="@color/purple_700"
             android:layout_centerInParent="true"/>
         <ImageButton
-        android:id="@+id/btn_settings"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@android:drawable/ic_menu_manage"
-        android:contentDescription="Settings"
-        android:scaleType="fitCenter"
-        android:padding="8dp"/>
+            android:id="@+id/btn_settings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_manage"
+            android:contentDescription="Settings"
+            android:scaleType="fitCenter"
+            android:padding="8dp"/>
 
     </RelativeLayout>
     <androidx.cardview.widget.CardView
@@ -69,19 +69,11 @@
                 android:scrollbars="none">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/layout_expiring_candles"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:id="@+id/layout_expiring_candles"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-                    </LinearLayout>
-
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
                 </LinearLayout>
 
             </HorizontalScrollView>
@@ -144,6 +136,14 @@
             android:layout_height="wrap_content"
             android:text="@string/dashboard_button"/>
 
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView_main_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111"/>
     </LinearLayout>
 
 </LinearLayout>

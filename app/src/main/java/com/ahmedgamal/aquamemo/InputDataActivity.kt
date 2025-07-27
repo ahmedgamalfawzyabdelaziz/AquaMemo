@@ -20,6 +20,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -51,6 +54,7 @@ class InputDataActivity : AppCompatActivity() {
     private lateinit var btnCandle6Date: Button
     private lateinit var btnCandle7Date: Button
     private lateinit var settingsChangeReceiver: BroadcastReceiver
+    private lateinit var adView: AdView // Add this line
 
     // --- كود تطبيق اللغة: يتم تجاوز attachBaseContext ---
     override fun attachBaseContext(newBase: Context) {
@@ -80,6 +84,13 @@ class InputDataActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_input_data)
+        // Initialize AdMob SDK
+        MobileAds.initialize(this) {} // Can be initialized once in Application class for better practice, but here is fine.
+
+        // Load AdView
+        adView = findViewById(R.id.adView_input_data_activity)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
         // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
         settingsChangeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -301,5 +312,15 @@ class InputDataActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView.resume() // Resume AdView when activity resumes
+    }
+
+    override fun onPause() {
+        super.onPause()
+        adView.pause() // Pause AdView when activity is paused
     }
 }

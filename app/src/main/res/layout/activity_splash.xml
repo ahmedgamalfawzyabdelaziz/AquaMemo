@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/aquamemo_background"
+    tools:context=".SplashActivity">
+
+    <TextView
+        android:id="@+id/app_name_splash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="@color/purple_700"
+        android:textSize="60sp"
+        android:textStyle="bold"
+        android:alpha="0.0"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:textAlignment="center" />
+</LinearLayout>

@@ -31,6 +31,9 @@ import java.util.concurrent.TimeUnit
 import android.content.BroadcastReceiver // لإضافة الـ BroadcastReceiver
 import android.content.IntentFilter // لإضافة الـ BroadcastReceiver
 import androidx.localbroadcastmanager.content.LocalBroadcastManager // لإضافة الـ LocalBroadcastManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.ahmedgamal.aquamemo.SettingsActivity
 import com.ahmedgamal.aquamemo.AppConstants
 
@@ -41,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardNextCandleInfo: CardView
     private lateinit var layoutExpiringCandlesTextDetails: LinearLayout
     private lateinit var settingsChangeReceiver: BroadcastReceiver
+    private lateinit var adView: AdView
 
     private val candleReplacementPeriods = listOf(3, 6, 6, 21, 21, 24, 24)
     private val FILTER_TYPE_KEY = "filter_type"
@@ -96,6 +100,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        // Initialize AdMob SDK
+        MobileAds.initialize(this) {}
+
+        // Load AdView
+        adView = findViewById(R.id.adView_main_activity)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
         // تهيئة وتسجيل الـ BroadcastReceiver للاستماع لتغيرات الإعدادات (اللغة وحجم الخط)
         settingsChangeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -155,6 +166,7 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
+        adView.resume()
         selectedFilterType = sharedPreferences.getInt(FILTER_TYPE_KEY, 7)
         updateCandleDisplayForNextChange()
     }
@@ -395,8 +407,15 @@ class MainActivity : AppCompatActivity() {
             }
             .show()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsChangeReceiver)
+        adView.destroy() // Destroy AdView when activity is destroyed
+    }
+
+    override fun onPause() {
+        super.onPause()
+        adView.pause() // Pause AdView when activity is paused
     }
 }

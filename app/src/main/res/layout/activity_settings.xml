@@ -19,6 +19,7 @@
             android:text="@string/settings_title"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:paddingTop="10dp"
             android:layout_marginBottom="24dp"
             android:textColor="@android:color/black"/>
 
@@ -46,15 +47,16 @@
                 android:text="@string/daily_reminder_time_label"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"/>
+
             <Button
                 android:id="@+id/btn_set_reminder_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/set_time_button"
                 android:minWidth="0dp"
-                android:minHeight="0dp"
+                android:minHeight="48dp"
                 android:paddingLeft="12dp"
-                android:paddingRight="12dp"/>
+                android:paddingRight="12dp"
+                android:text="@string/set_time_button" />
             <TextView
                 android:id="@+id/text_view_reminder_time"
                 android:layout_width="wrap_content"
@@ -104,15 +106,16 @@
                 android:text="@string/notification_tone_label"
                 android:textSize="13sp"
                 android:textColor="@android:color/black"/>
+
             <Button
                 android:id="@+id/btn_change_notification_tone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/change_tone_button"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
+                android:minWidth="4dp"
+                android:minHeight="48dp"
                 android:paddingLeft="12dp"
-                android:paddingRight="12dp"/>
+                android:paddingRight="12dp"
+                android:text="@string/change_tone_button" />
             <TextView
                 android:id="@+id/text_view_notification_tone"
                 android:layout_width="wrap_content"
@@ -160,6 +163,8 @@
             android:layout_marginTop="8dp"
             android:entries="@array/font_size_options_display_names"
             android:prompt="@string/select_font_size"
+            android:background="@drawable/rounded_background"
+            android:minHeight="48dp"
             android:layout_marginBottom="24dp"/>
         <TextView
             android:layout_width="wrap_content"

@@ -59,4 +59,5 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+    implementation(libs.play.services.ads)
 }
