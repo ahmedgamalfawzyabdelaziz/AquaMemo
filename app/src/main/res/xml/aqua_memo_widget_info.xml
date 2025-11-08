@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="86400000"
+    android:previewImage="@mipmap/ic_launcher_foreground"
+    android:initialLayout="@layout/widget_initial_layout"
+    android:description="@string/widget_description"
+    android:resizeMode="horizontal|vertical"
+    android:widgetFeatures="reconfigurable"
+    android:widgetCategory="home_screen"
+    android:configure="com.ahmedgamal.aquamemo.widget.AquaMemoWidgetConfigureActivity">
+</appwidget-provider>

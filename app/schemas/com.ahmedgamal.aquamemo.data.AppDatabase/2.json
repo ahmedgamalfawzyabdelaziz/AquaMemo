@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "7d95da8cabb315afe6f368ea3e684424",
+    "entities": [
+      {
+        "tableName": "Filter",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`filterType` TEXT NOT NULL, `candleNumber` INTEGER NOT NULL, `lastChangedDate` INTEGER NOT NULL, PRIMARY KEY(`filterType`, `candleNumber`))",
+        "fields": [
+          {
+            "fieldPath": "filterType",
+            "columnName": "filterType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "candleNumber",
+            "columnName": "candleNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastChangedDate",
+            "columnName": "lastChangedDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "filterType",
+            "candleNumber"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7d95da8cabb315afe6f368ea3e684424')"
+    ]
+  }
+}
