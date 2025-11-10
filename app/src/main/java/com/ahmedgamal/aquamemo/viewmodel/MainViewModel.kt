@@ -335,7 +335,25 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+    fun rescheduleAllNotifications() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // 1. جلب جميع الفلاتر المسجلة
+                val filters = filterRepository.getAllFilters().first()
 
+                filters.forEach { filter ->
+                    // 2. إلغاء أي إشعار قديم مجدول لهذه الشمعة
+                    WorkManager.getInstance(context).cancelAllWorkByTag("candle_${filter.candleNumber}")
+
+                    // 3. جدولة إشعار جديد بناءً على آخر تاريخ تغيير
+                    scheduleNotification(filter.candleNumber, filter.lastChangedDate)
+                }
+                Log.d("MainViewModel", "All notifications have been rescheduled.")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error rescheduling notifications: ${e.message}")
+            }
+        }
+    }
     private fun updateWidgetData() {
         Log.d("MainViewModel", "Enqueuing WidgetUpdateWorker...") // <-- Add this log
         val workRequest = OneTimeWorkRequestBuilder<com.ahmedgamal.aquamemo.widget.WidgetUpdateWorker>().build()

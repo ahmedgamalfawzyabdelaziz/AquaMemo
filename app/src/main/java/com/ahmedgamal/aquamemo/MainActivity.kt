@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -60,6 +61,7 @@ import com.ahmedgamal.aquamemo.ui.CandlePricesScreen
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val mainViewModel: MainViewModel by viewModels()
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -189,8 +191,6 @@ class MainActivity : ComponentActivity() {
                             )
                     ) {
                         val navController = rememberNavController()
-                        val mainViewModel: MainViewModel = hiltViewModel()
-
                         var showSplashScreen by remember { mutableStateOf(true) }
                         var startDestination by remember { mutableStateOf("home_screen") }
                         var isLoading by remember { mutableStateOf(true) }
@@ -375,6 +375,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun rescheduleAllNotifications() {
-        Toast.makeText(this, getString(R.string.billing_restoring), Toast.LENGTH_SHORT).show()
+        mainViewModel.rescheduleAllNotifications()
     }
 }
