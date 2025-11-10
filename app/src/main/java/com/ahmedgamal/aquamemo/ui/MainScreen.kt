@@ -20,21 +20,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ahmedgamal.aquamemo.R
 import com.ahmedgamal.aquamemo.ads.AdBanner
-import com.ahmedgamal.aquamemo.ui.theme.AquaMemoTheme
-import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 
 // MainScreen.kt - الكود المحدث
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     onNavigateToInput: (String) -> Unit,
-    onNavigateToSettings: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
+    onNavigateToSettings: () -> Unit
 ) {
-    val fontSize by viewModel.fontSize.collectAsState(initial = "medium")
     val context = LocalContext.current
 
     val filterTypes = remember {
@@ -53,7 +48,6 @@ fun MainScreen(
         )
     }
 
-    AquaMemoTheme(fontSize = fontSize) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -146,7 +140,6 @@ fun MainScreen(
                 }
             }
         }
-    }
 }
     @Composable
     fun FilterTypeButton(

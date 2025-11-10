@@ -21,7 +21,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.Log
 import com.ahmedgamal.aquamemo.R
 import com.ahmedgamal.aquamemo.data.model.Filter
-import com.ahmedgamal.aquamemo.ui.theme.AquaMemoTheme
 import com.ahmedgamal.aquamemo.viewmodel.MainViewModel
 import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +50,6 @@ fun CandleDataScreen(
 ) {
 
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val fontSize by settingsViewModel.fontSize.collectAsState(initial = "medium")
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -74,7 +72,6 @@ fun CandleDataScreen(
         )
     }
 
-    AquaMemoTheme(fontSize = fontSize) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -232,7 +229,6 @@ fun CandleDataScreen(
                 }
             }
         }
-    }
 
     LaunchedEffect(key1 = stableCandleNumberToEdit, key2 = stableFilterType) {
         isLoading = true

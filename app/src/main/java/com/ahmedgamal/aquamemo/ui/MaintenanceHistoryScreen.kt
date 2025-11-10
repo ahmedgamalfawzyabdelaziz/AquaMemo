@@ -29,7 +29,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ahmedgamal.aquamemo.R
 import com.ahmedgamal.aquamemo.ads.AdBanner
 import com.ahmedgamal.aquamemo.data.model.Filter
-import com.ahmedgamal.aquamemo.ui.theme.AquaMemoTheme
 import com.ahmedgamal.aquamemo.viewmodel.MainViewModel
 import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 import java.text.SimpleDateFormat
@@ -84,7 +83,6 @@ fun MaintenanceHistoryScreen(
         sortAndGroupFilters(allFilters, sortOrder, context)
     }
 
-    AquaMemoTheme(fontSize = fontSize) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -256,7 +254,6 @@ fun MaintenanceHistoryScreen(
                 }
             }
         }
-    }
 }
 
 // enum للترتيب

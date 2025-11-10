@@ -30,9 +30,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ahmedgamal.aquamemo.R
 import com.ahmedgamal.aquamemo.ads.AdBanner
 import com.ahmedgamal.aquamemo.data.model.Filter
-import com.ahmedgamal.aquamemo.ui.theme.AquaMemoTheme
 import com.ahmedgamal.aquamemo.viewmodel.MainViewModel
-import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,18 +40,14 @@ fun HomeScreen(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val fontSize by settingsViewModel.fontSize.collectAsState(initial = "medium")
     val allFilters by mainViewModel.allFilters.collectAsState(initial = emptyList())
 
-    AquaMemoTheme(fontSize = fontSize) {
         HomeScreenContent(
             onNavigateToDataDisplay = onNavigateToDataDisplay,
             onNavigateToSettings = onNavigateToSettings,
             allFilters = allFilters
         )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

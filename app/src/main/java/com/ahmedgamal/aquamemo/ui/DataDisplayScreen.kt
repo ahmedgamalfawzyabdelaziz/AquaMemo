@@ -27,7 +27,6 @@ import java.util.*
 import com.ahmedgamal.aquamemo.R
 import androidx.compose.ui.text.font.FontWeight
 import com.ahmedgamal.aquamemo.ads.AdBanner
-import com.ahmedgamal.aquamemo.ui.theme.AquaMemoTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +37,6 @@ fun DataDisplayScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val fontSize by settingsViewModel.fontSize.collectAsState(initial = "medium")
 
     // تعريف التدرج اللوني المتسق
     val gradientColors = remember {
@@ -57,7 +55,6 @@ fun DataDisplayScreen(
 
     val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
-    AquaMemoTheme(fontSize = fontSize) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,7 +106,6 @@ fun DataDisplayScreen(
                 }
             }
         }
-    }
 }
 
 @Composable
