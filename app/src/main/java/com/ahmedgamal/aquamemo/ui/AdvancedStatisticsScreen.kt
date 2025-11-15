@@ -40,6 +40,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import com.ahmedgamal.aquamemo.data.model.CandlePrice
+import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
+import kotlinx.coroutines.flow.first
 import kotlin.collections.sumOf
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -184,12 +186,27 @@ fun NoStatisticsView() {
 fun AdvancedStatisticsContent(allFilters: List<Filter>) {
     val context = LocalContext.current
     val viewModel: MainViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
     val candlePrices: List<CandlePrice> by viewModel.candlePrices.collectAsState(emptyList())
     val selectedCurrency: String by viewModel.selectedCurrency.collectAsState()
-    val statistics = remember(allFilters, candlePrices, selectedCurrency) {
-        calculateAdvancedStatistics(allFilters, context, candlePrices, selectedCurrency)
+    var statistics by remember { mutableStateOf<AdvancedStatistics?>(null) }
+    LaunchedEffect(allFilters, candlePrices, selectedCurrency) {
+        statistics = calculateAdvancedStatistics(
+            allFilters,
+            context,
+            candlePrices,
+            selectedCurrency,
+            settingsViewModel
+        )
     }
 
+    if (statistics == null) {
+        // عرض مؤشر تحميل حتى يتم حساب الإحصائيات
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -197,27 +214,27 @@ fun AdvancedStatisticsContent(allFilters: List<Filter>) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            OverviewCard(statistics = statistics)
+            OverviewCard(statistics = statistics!!)
         }
 
         item {
-            ChartsSection(statistics = statistics)
+            ChartsSection(statistics = statistics!!)
         }
 
         item {
-            CostAnalysisCard(statistics = statistics)
+            CostAnalysisCard(statistics = statistics!!)
         }
 
         item {
-            FilterPerformanceCard(statistics = statistics)
+            FilterPerformanceCard(statistics = statistics!!)
         }
 
         item {
-            SmartRecommendationsCard(statistics = statistics)
+            SmartRecommendationsCard(statistics = statistics!!)
         }
 
         item {
-            TrendsAnalysisCard(statistics = statistics)
+            TrendsAnalysisCard(statistics = statistics!!)
         }
     }
 }
@@ -266,7 +283,7 @@ fun OverviewCard(statistics: AdvancedStatistics) {
                     StatisticItem(
                         icon = Icons.Default.AttachMoney,
                         label = stringResource(R.string.monthly_cost),
-                        value = stringResource(R.string.price_format, statistics.monthlyCost),
+                        value = "${statistics.currency} ${statistics.monthlyCost}",
                         color = Color(0xFFFF9800)
                     )
                     StatisticItem(
@@ -330,7 +347,7 @@ fun ChartsSection(statistics: AdvancedStatistics) {
                     title = stringResource(R.string.cost_distribution),
                     data = statistics.costDistribution,
                     barColor = Color(0xFFFF9800),
-                    valuePrefix = "$",
+                    valuePrefix = "${statistics.currency} ",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(chartHeight)
@@ -573,7 +590,7 @@ fun CostAnalysisCard(statistics: AdvancedStatistics) {
                 Icon(Icons.Default.Savings, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    "${stringResource(R.string.cost_analysis)} ($currencySymbol)", // 🔽 إضافة رمز العملة
+                    "${stringResource(R.string.cost_analysis)} ($currencySymbol)",
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -584,21 +601,21 @@ fun CostAnalysisCard(statistics: AdvancedStatistics) {
             StatisticItem(
                 icon = Icons.Default.AttachMoney,
                 label = stringResource(R.string.total_spent),
-                value = "$currencySymbol${"%.2f".format(statistics.totalSpent)}", // 🔽 استخدام العملة
+                value = "${statistics.currency} ${statistics.totalSpent}",
                 color = Color(0xFFF44336)
             )
 
             StatisticItem(
                 icon = Icons.AutoMirrored.Filled.TrendingDown,
                 label = stringResource(R.string.estimated_savings),
-                value = "$currencySymbol${"%.2f".format(statistics.totalSpent)}", // 🔽 استخدام العملة
+                value = "${statistics.currency} ${statistics.estimatedSavings}",
                 color = Color(0xFF4CAF50)
             )
 
             StatisticItem(
                 icon = Icons.Default.CalendarToday,
                 label = stringResource(R.string.yearly_cost),
-                value = "$currencySymbol${"%.2f".format(statistics.totalSpent)}", // 🔽 استخدام العملة
+                value = "${statistics.currency} ${statistics.yearlyCost}",
                 color = Color(0xFFFF9800)
             )
         }
@@ -858,11 +875,12 @@ data class FilterPerformance(
 )
 
 @SuppressLint("SimpleDateFormat")
-private fun calculateAdvancedStatistics(
+private suspend fun calculateAdvancedStatistics(
     filters: List<Filter>,
     context: android.content.Context,
     candlePrices: List<CandlePrice>,
-    selectedCurrency: String
+    selectedCurrency: String,
+    settingsViewModel: SettingsViewModel
 ): AdvancedStatistics {
     if (filters.isEmpty()) return AdvancedStatistics(
         totalCandles = 0,
@@ -880,7 +898,7 @@ private fun calculateAdvancedStatistics(
         costDistribution = emptyMap(),
         filterPerformance = emptyList(),
         recommendations = emptyList(),
-        currency = selectedCurrency // 🔽 أضف العملة هنا كمان
+        currency = selectedCurrency
     )
 
     val currentTime = System.currentTimeMillis()
@@ -910,11 +928,15 @@ private fun calculateAdvancedStatistics(
     val yearlyCost = totalSpent
 
     // كفاءة الاستخدام
-    val usageEfficiency = (filters.count { filter ->
-        val expectedLifespan = getCandleIntervalForWorker(filter.candleNumber) * 30
+    val usageEfficiencySum = filters.count { filter ->
+        // 3. التعديل هنا
+        val expectedLifespan = settingsViewModel.getIntervalForCandle(filter.candleNumber).first() * 30
+        if (expectedLifespan <= 0) return@count true // اعتبرها كفء إذا كانت المدة 0
         val actualAge = (currentTime - filter.lastChangedDate) / (1000 * 60 * 60 * 24)
         actualAge <= expectedLifespan
-    } * 100 / totalCandles).coerceIn(0, 100)
+    }
+    val usageEfficiency = (usageEfficiencySum * 100 / totalCandles).coerceIn(0, 100)
+
 
     // توزيع التكلفة
     val costDistribution = filters.groupBy { it.filterType }
@@ -925,14 +947,15 @@ private fun calculateAdvancedStatistics(
     // أداء الفلاتر
     val filterPerformance = filters.groupBy { it.filterType }
         .map { (filterType, typeFilters) ->
-            val efficiency = (typeFilters.count { filter ->
-                val expectedLifespan = getCandleIntervalForWorker(filter.candleNumber) * 30
+            val efficiencySum = typeFilters.count { filter ->
+                val expectedLifespan = settingsViewModel.getIntervalForCandle(filter.candleNumber).first() * 30
+                if (expectedLifespan <= 0) return@count true
                 val actualAge = (currentTime - filter.lastChangedDate) / (1000 * 60 * 60 * 24)
                 actualAge <= expectedLifespan
-            } * 100 / typeFilters.size).coerceIn(0, 100)
-
+            }
+            val efficiency = (efficiencySum * 100 / typeFilters.size).coerceIn(0, 100)
             val averageLifespan = typeFilters.map { filter ->
-                getCandleIntervalForWorker(filter.candleNumber) * 30 // تحويل الأشهر إلى أيام
+                settingsViewModel.getIntervalForCandle(filter.candleNumber).first() * 30
             }.average().toInt()
 
             FilterPerformance(filterType, efficiency, averageLifespan)
@@ -940,7 +963,8 @@ private fun calculateAdvancedStatistics(
 
     // الشمعات المتأخرة
     val overdueCandles = filters.count { filter ->
-        val expectedLifespan = getCandleIntervalForWorker(filter.candleNumber) * 30
+        val expectedLifespan = settingsViewModel.getIntervalForCandle(filter.candleNumber).first() * 30
+        if (expectedLifespan <= 0) return@count false
         val actualAge = (currentTime - filter.lastChangedDate) / (1000 * 60 * 60 * 24)
         actualAge > expectedLifespan
     }
@@ -971,19 +995,23 @@ private fun calculateAdvancedStatistics(
     }
 
     // أقرب موعد استبدال
-    val nextReplacement = filters.minByOrNull { filter ->
+    val validFilters = filters.filter { settingsViewModel.getIntervalForCandle(it.candleNumber).first() > 0 }
+    val nextReplacement = validFilters.minByOrNull { filter ->
+        val interval = settingsViewModel.getIntervalForCandle(filter.candleNumber).first()
         val nextChangeDate = Calendar.getInstance().apply {
             timeInMillis = filter.lastChangedDate
-            add(Calendar.MONTH, getCandleIntervalForWorker(filter.candleNumber))
+            add(Calendar.MONTH, interval)
         }.timeInMillis
         nextChangeDate
     }?.let { filter ->
+        val interval = settingsViewModel.getIntervalForCandle(filter.candleNumber).first()
         val nextChangeDate = Calendar.getInstance().apply {
             timeInMillis = filter.lastChangedDate
-            add(Calendar.MONTH, getCandleIntervalForWorker(filter.candleNumber))
+            add(Calendar.MONTH, interval)
         }.timeInMillis
         dateFormatter.format(Date(nextChangeDate))
     } ?: context.getString(R.string.no_data)
+
 
     return AdvancedStatistics(
         totalCandles = totalCandles,

@@ -26,7 +26,6 @@ import java.util.Calendar
 import com.ahmedgamal.aquamemo.data.SettingsRepository
 import com.ahmedgamal.aquamemo.data.model.CandlePrice
 import com.ahmedgamal.aquamemo.data.model.FilterChangeHistory
-import com.ahmedgamal.aquamemo.ui.getCandleIntervalForWorker
 import com.ahmedgamal.aquamemo.ui.getCandleNameForWorker
 import com.ahmedgamal.aquamemo.utils.LanguageManager
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -52,7 +51,7 @@ class MainViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     val selectedCurrency = settingsRepository.selectedCurrencyFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "USD")
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "USD")
     fun updateSelectedCurrency(currency: String) {
         viewModelScope.launch {
             settingsRepository.setSelectedCurrency(currency)
@@ -162,7 +161,11 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val reminderTime = reminderTimeFlow.first()
-                val intervalMonths = getCandleIntervalForWorker(candleNumber)
+                val intervalMonths = settingsRepository.getIntervalForCandle(candleNumber).first()
+                if (intervalMonths <= 0) {
+                    Log.w("Notification", "تم إلغاء جدولة الشمعة $candleNumber لأن مدتها 0.")
+                    return@launch // لا تقم بجدولة إشعار
+                }
                 // حساب موعد التغيير القادم
                 val nextChangeDate = Calendar.getInstance().apply {
                     timeInMillis = lastChangedDateMillis

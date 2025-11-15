@@ -262,5 +262,13 @@
     <string name="settings_tone_customize">تخصيص</string>
     <string name="settings_notification_tone_pro_channel">الترقية تفتح قناة إشعارات خاصة يمكنك تخصيصها من إعدادات النظام.</string>
     <string name="settings_open_fail">لا يمكن فتح الإعدادات</string>
+    <!-- زر تخصيص مواعيد الشمعات -->
+    <string name="custom_candle_intervals">تخصيص مدة الشمعات</string>
+    <string name="custom_intervals_description">قم بتعديل العمر الافتراضي (بالأشهر) لكل شمعة.</string>
+    <string name="intervals_disclaimer">هذه المدد استرشادية وقد تختلف حسب الاستهلاك ونوعية المياه.</string>
+    <string name="reset_to_default">استعادة الافتراضي</string>
+    <string name="interval_months_label">أشهر</string>
+    <string name="intervals_saved">تم حفظ المدد بنجاح</string>
+    <string name="intervals_reset">تم استعادة المدد الافتراضية</string>
 
 </resources>

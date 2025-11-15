@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -28,16 +27,14 @@ import com.ahmedgamal.aquamemo.R
 import androidx.compose.ui.text.font.FontWeight
 import com.ahmedgamal.aquamemo.ads.AdBanner
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataDisplayScreen(
     onNavigateToEdit: (String, Int) -> Unit,
     onNavigateToSettings: () -> Unit,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
-
     // تعريف التدرج اللوني المتسق
     val gradientColors = remember {
         listOf(
@@ -55,57 +52,58 @@ fun DataDisplayScreen(
 
     val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(brush = Brush.verticalGradient(colors = gradientColors))
-        ) {
-            Scaffold(
-                containerColor = Color.Transparent,
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = stringResource(R.string.filter_data),
-                                color = MaterialTheme.colorScheme.primary
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = Brush.verticalGradient(colors = gradientColors))
+    ) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.filter_data),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    actions = {
+                        IconButton(onClick = onNavigateToSettings) {
+                            Icon(
+                                Icons.Filled.Settings,
+                                contentDescription = stringResource(R.string.settings),
+                                tint = MaterialTheme.colorScheme.primary
                             )
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                            titleContentColor = MaterialTheme.colorScheme.primary
-                        ),
-                        actions = {
-                            IconButton(onClick = onNavigateToSettings) {
-                                Icon(
-                                    Icons.Filled.Settings,
-                                    contentDescription = stringResource(R.string.settings),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
                         }
-                    )
-                },
-                bottomBar = {
-                    // ✅ الإعلان في الـ BottomBar
-                    AdBanner(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.Transparent)
-                    )
-                }
-            ) { innerPadding ->
-                if (groupedFilters.isEmpty()) {
-                    NoDataView(modifier = Modifier.padding(innerPadding))
-                } else {
-                    FiltersListView(
-                        groupedFilters = groupedFilters,
-                        dateFormatter = dateFormatter,
-                        onNavigateToEdit = onNavigateToEdit,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                    }
+                )
+            },
+            bottomBar = {
+                // ✅ الإعلان في الـ BottomBar
+                AdBanner(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                )
+            }
+        ) { innerPadding ->
+            if (groupedFilters.isEmpty()) {
+                NoDataView(modifier = Modifier.padding(innerPadding))
+            } else {
+                FiltersListView(
+                    groupedFilters = groupedFilters,
+                    dateFormatter = dateFormatter,
+                    onNavigateToEdit = onNavigateToEdit,
+                    modifier = Modifier.padding(innerPadding),
+                    settingsViewModel = settingsViewModel
+                )
             }
         }
+    }
 }
 
 @Composable
@@ -129,7 +127,8 @@ private fun FiltersListView(
     groupedFilters: Map<String, List<Filter>>,
     dateFormatter: SimpleDateFormat,
     onNavigateToEdit: (String, Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    settingsViewModel: SettingsViewModel
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -155,7 +154,8 @@ private fun FiltersListView(
                 FilterCard(
                     filter = filter,
                     dateFormatter = dateFormatter,
-                    onNavigateToEdit = onNavigateToEdit
+                    onNavigateToEdit = onNavigateToEdit,
+                    settingsViewModel = settingsViewModel
                 )
             }
         }
@@ -166,21 +166,31 @@ private fun FiltersListView(
 private fun FilterCard(
     filter: Filter,
     dateFormatter: SimpleDateFormat,
-    onNavigateToEdit: (String, Int) -> Unit
+    onNavigateToEdit: (String, Int) -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
-    val context = LocalContext.current
+    // 🔽 1. قمنا بإزالة 'context' لأنه أصبح غير ضروري هنا
+    // val context = LocalContext.current
 
     val lastChangedDate by remember(filter.lastChangedDate) {
         derivedStateOf { dateFormatter.format(Date(filter.lastChangedDate)) }
     }
 
-    val nextChangeDate by remember(filter.lastChangedDate, filter.candleNumber) {
+    // 🔽 2. (جديد) جلب المدة المخصصة للشمعة
+    val intervalMonths by settingsViewModel.getIntervalForCandle(filter.candleNumber)
+        .collectAsStateWithLifecycle(initialValue = 3) // قيمة أولية
+
+    // 🔽 3. (جديد) حساب تاريخ التغيير القادم بناءً على المدة
+    val nextChangeDate by remember(filter.lastChangedDate, intervalMonths) {
         derivedStateOf {
-            val calendar = Calendar.getInstance().apply {
-                timeInMillis = filter.lastChangedDate
-                add(Calendar.MONTH, getCandleIntervalForWorker(filter.candleNumber))
+            if (intervalMonths <= 0) "N/A" // حالة إذا كانت المدة 0
+            else {
+                val calendar = Calendar.getInstance().apply {
+                    timeInMillis = filter.lastChangedDate
+                    add(Calendar.MONTH, intervalMonths)
+                }
+                dateFormatter.format(calendar.time)
             }
-            dateFormatter.format(calendar.time)
         }
     }
 
@@ -189,7 +199,7 @@ private fun FilterCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent,
+            containerColor = Color.Transparent, // ملاحظة: هذا قد يجعل الكارت شفافاً، ربما تقصد 'MaterialTheme.colorScheme.surface'؟
             contentColor = MaterialTheme.colorScheme.secondary
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -197,7 +207,9 @@ private fun FilterCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = getCandleNameForWorker(filter.candleNumber, context), // ✅ التصحيح
+                // 🔽 4. (تحسين) استخدام getCandleName بدلاً من getCandleNameForWorker
+                //    لأنها مخصصة للـ Composable وتستخدم stringResource
+                text = getCandleName(filter.candleNumber),
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -208,6 +220,8 @@ private fun FilterCard(
 
             DateRow(label = stringResource(R.string.last_change), value = lastChangedDate)
             Spacer(modifier = Modifier.height(8.dp))
+
+            // 🔽 5. الآن 'nextChangeDate' معرفة ولها قيمة
             DateRow(label = stringResource(R.string.next_change), value = nextChangeDate)
 
             Spacer(modifier = Modifier.height(16.dp))

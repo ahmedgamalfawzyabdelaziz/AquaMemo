@@ -1,4 +1,3 @@
-// HomeScreen.kt - الملف الكامل بعد التعديل
 package com.ahmedgamal.aquamemo.ui
 
 import android.content.Context
@@ -33,6 +32,9 @@ import com.ahmedgamal.aquamemo.data.model.Filter
 import com.ahmedgamal.aquamemo.viewmodel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
+import kotlinx.coroutines.flow.first
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,22 +42,28 @@ fun HomeScreen(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val allFilters by mainViewModel.allFilters.collectAsState(initial = emptyList())
+    val context = LocalContext.current
+    var maintenanceList by remember { mutableStateOf(emptyList<MaintenanceInfo>()) }
 
+    LaunchedEffect(allFilters) {
+        maintenanceList = getAllMaintenanceInfo(allFilters, context, settingsViewModel)
+            .sortedBy { it.daysRemaining }
+    }
         HomeScreenContent(
             onNavigateToDataDisplay = onNavigateToDataDisplay,
             onNavigateToSettings = onNavigateToSettings,
-            allFilters = allFilters
+            maintenanceList = maintenanceList
         )
-}
-
+    }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    allFilters: List<Filter>
+    maintenanceList: List<MaintenanceInfo>
 ) {
     val gradientColors = remember {
         listOf(
@@ -64,18 +72,7 @@ fun HomeScreenContent(
             Color(0xFF90CAF9)
         )
     }
-
     val context = LocalContext.current
-
-    // الحصول على جميع معلومات الصيانة مرتبة حسب الأقرب
-    val maintenanceList = remember(allFilters) {
-        if (allFilters.isNotEmpty()) {
-            getAllMaintenanceInfo(allFilters, context).sortedBy { it.daysRemaining }
-        } else {
-            emptyList()
-        }
-    }
-
     // حالة الـ Pager
     val pagerState = rememberPagerState(pageCount = { maintenanceList.size })
 
@@ -126,7 +123,6 @@ fun HomeScreenContent(
                     modifier = Modifier.fillMaxHeight(0.8f)
                 ) {
                     Spacer(modifier = Modifier.height(8.dp))
-
                     Text(
                         text = stringResource(R.string.next_maintenance),
                         style = MaterialTheme.typography.headlineMedium,
@@ -134,7 +130,6 @@ fun HomeScreenContent(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
-
                     Text(
                         text = stringResource(R.string.next_maintenance_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
@@ -152,14 +147,12 @@ fun HomeScreenContent(
                         )
                     }
                 }
-
                 // الإعلان
                 AdBanner(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 )
-
                 // زر الانتقال لبيانات الشمعات
                 Button(
                     onClick = onNavigateToDataDisplay,
@@ -186,7 +179,6 @@ fun HomeScreenContent(
         }
     }
 }
-
 @Composable
 fun MaintenancePager(
     maintenanceList: List<MaintenanceInfo>,
@@ -206,7 +198,6 @@ fun MaintenancePager(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
         }
-
         // الـ Horizontal Pager
         HorizontalPager(
             state = pagerState,
@@ -220,7 +211,6 @@ fun MaintenancePager(
                     .padding(horizontal = 8.dp)
             )
         }
-
         // معلومات الصفحة الحالية
         if (maintenanceList.size > 1) {
             Text(
@@ -232,7 +222,6 @@ fun MaintenancePager(
         }
     }
 }
-
 @Composable
 fun PagerIndicator(
     pageCount: Int,
@@ -257,14 +246,12 @@ fun PagerIndicator(
         }
     }
 }
-
 @Composable
 fun NearestMaintenanceCard(
     maintenanceInfo: MaintenanceInfo,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -281,7 +268,6 @@ fun NearestMaintenanceCard(
         ) {
             // صورة الشمعة
             val imageResource = maintenanceInfo.imageResource
-
             if (imageResource != 0) {
                 Image(
                     painter = painterResource(id = imageResource),
@@ -301,7 +287,6 @@ fun NearestMaintenanceCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-
             // اسم المرحلة
             Text(
                 text = maintenanceInfo.candleName,
@@ -311,18 +296,15 @@ fun NearestMaintenanceCard(
                 ),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-
             // معلومات الموعد
             MaintenanceInfoItem(
                 label = stringResource(R.string.next_maintenance_date),
                 value = maintenanceInfo.nextChangeDate
             )
-
             MaintenanceInfoItem(
                 label = stringResource(R.string.days_remaining),
                 value = maintenanceInfo.daysRemaining.toString()
             )
-
             // شريط التقدم
             LinearProgressIndicator(
                 progress = { maintenanceInfo.progress },
@@ -333,7 +315,6 @@ fun NearestMaintenanceCard(
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.primaryContainer
             )
-
             // مؤشر الأولوية - مع الترجمة
             Text(
                 text = getPriorityText(maintenanceInfo.daysRemaining, context),
@@ -348,7 +329,6 @@ fun NearestMaintenanceCard(
         }
     }
 }
-
 @Composable
 fun MaintenanceInfoItem(label: String, value: String) {
     Row(
@@ -417,14 +397,12 @@ fun NoMaintenanceCard() {
         }
     }
 }
-
-// دالة مساعدة للأولوية - مع الترجمة
 @Composable
 private fun getPriorityText(daysRemaining: Int, context: Context): String {
     return when {
-        daysRemaining <= 7 -> stringResource(R.string.priority_urgent) // كان يستخدم context.getString
-        daysRemaining <= 30 -> stringResource(R.string.priority_soon) // كان يستخدم context.getString
-        else -> stringResource(R.string.priority_upcoming) // كان يستخدم context.getString
+        daysRemaining <= 7 -> stringResource(R.string.priority_urgent)
+        daysRemaining <= 30 -> stringResource(R.string.priority_soon)
+        else -> stringResource(R.string.priority_upcoming)
     }
 }
 
@@ -440,25 +418,46 @@ data class MaintenanceInfo(
 )
 
 // دالة للحصول على جميع معلومات الصيانة
-private fun getAllMaintenanceInfo(
+private suspend fun getAllMaintenanceInfo(
     filters: List<Filter>,
-    context: Context
+    context: Context,
+    settingsViewModel: SettingsViewModel
 ): List<MaintenanceInfo> {
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val currentTime = System.currentTimeMillis()
-
+    val currentCalendar = Calendar.getInstance().apply {
+        timeInMillis = System.currentTimeMillis()
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    val currentTimeAtMidnight = currentCalendar.timeInMillis
     return filters.map { filter ->
-        val intervalMonths = getCandleIntervalForWorker(filter.candleNumber)
-        val nextChangeDate = Calendar.getInstance().apply {
+        val intervalMonths = settingsViewModel.getIntervalForCandle(filter.candleNumber).first()
+        if (intervalMonths <= 0) {
+            return@map MaintenanceInfo(
+                candleNumber = filter.candleNumber,
+                candleName = getCandleNameForWorker(filter.candleNumber, context),
+                nextChangeDate = "N/A",
+                daysRemaining = 0,
+                progress = 0f,
+                imageResource = getCandleImageResourceDirect(filter.candleNumber),
+                filterType = filter.filterType
+            )
+        }
+        val nextChangeCalendar = Calendar.getInstance().apply {
             timeInMillis = filter.lastChangedDate
             add(Calendar.MONTH, intervalMonths)
-        }.timeInMillis
-
-        val daysRemaining = ((nextChangeDate - currentTime) / (1000 * 60 * 60 * 24)).toInt()
-
-        val totalDays = intervalMonths * 30
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val nextChangeDate = nextChangeCalendar.timeInMillis
+        val diffMillis = nextChangeDate - currentTimeAtMidnight
+        val daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis).toInt()
+        val totalDays = (intervalMonths * 30).coerceAtLeast(1)
         val progress = (daysRemaining.toFloat() / totalDays).coerceIn(0f, 1f)
-
         val candleName = getCandleNameForWorker(filter.candleNumber, context)
         val imageResource = getCandleImageResourceDirect(filter.candleNumber)
 
@@ -473,7 +472,6 @@ private fun getAllMaintenanceInfo(
         )
     }
 }
-
 // دالة للحصول على الصور مباشرة
 private fun getCandleImageResourceDirect(candleNumber: Int): Int {
     return when (candleNumber) {

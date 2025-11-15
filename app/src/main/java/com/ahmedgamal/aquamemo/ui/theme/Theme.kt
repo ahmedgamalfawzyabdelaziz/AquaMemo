@@ -10,8 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color // Import Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -93,15 +92,9 @@ fun AquaMemoTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-
-            // 1. Make system bars transparent (often done for edge-to-edge)
-            window.statusBarColor = Color.Transparent.toArgb()
-            window.navigationBarColor = Color.Transparent.toArgb()
-
-            // 2. Ensure edge-to-edge is enabled (already done correctly)
+            // 1. Ensure edge-to-edge is enabled (already done correctly)
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
-            // 3. Control the *appearance* (light/dark icons) of the bars
+            // 2. Control the *appearance* (light/dark icons) of the bars
             val controller = WindowCompat.getInsetsController(window, view)
             controller.isAppearanceLightStatusBars = !useDarkTheme // Light icons on dark status bar, Dark icons on light status bar
             controller.isAppearanceLightNavigationBars = !useDarkTheme // Same logic for navigation bar

@@ -12,7 +12,6 @@ import com.ahmedgamal.aquamemo.billing.BillingManager
 import com.ahmedgamal.aquamemo.data.FilterRepository
 import com.ahmedgamal.aquamemo.data.SettingsRepository
 import com.ahmedgamal.aquamemo.data.model.Filter
-import com.ahmedgamal.aquamemo.ui.getCandleIntervalForWorker
 import com.ahmedgamal.aquamemo.ui.getCandleNameForWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -60,7 +59,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
             // 1. Fetch Data (Filters, Nearest Maintenance)
             val allFilters = filterRepository.getAllFilters().first()
             Log.d(TAG, "Fetched ${allFilters.size} filters from repository.")
-            val nearestInfo = findNearestMaintenance(allFilters)
+            val nearestInfo = findNearestMaintenance(allFilters, settingsRepository)
             Log.d(TAG, "Nearest maintenance info: $nearestInfo")
 
             // 2. Fetch Settings
@@ -127,7 +126,10 @@ class WidgetUpdateWorker @AssistedInject constructor(
         }
     }
 
-    private fun findNearestMaintenance(filters: List<Filter>): NearestMaintenanceInfo? {
+    private suspend fun findNearestMaintenance(
+        filters: List<Filter>,
+        settingsRepository: SettingsRepository // 1. استقبال الـ Repository
+    ): NearestMaintenanceInfo? {
         if (filters.isEmpty()){
             Log.d(TAG, "findNearestMaintenance: Filter list is empty.")
             return null
@@ -136,8 +138,18 @@ class WidgetUpdateWorker @AssistedInject constructor(
         val currentTime = System.currentTimeMillis()
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        val maintenanceInfos = filters.map { filter ->
-            val intervalMonths = getCandleIntervalForWorker(filter.candleNumber)
+        // 2. استخدام mutableList لأننا سنحتاج لـ suspend fun
+        val maintenanceInfos = mutableListOf<NearestMaintenanceInfo>()
+
+        // 3. استخدام Loop (بدلاً من .map) للتعامل مع .first()
+        for (filter in filters) {
+
+            // 4. (هذا هو التعديل الأهم) قراءة المدة من DataStore
+            val intervalMonths = settingsRepository.getIntervalForCandle(filter.candleNumber).first()
+
+            // 5. إذا كانت المدة 0 (المستخدم ألغاها)، تجاهل هذه الشمعة
+            if (intervalMonths <= 0) continue
+
             val nextChangeCalendar = Calendar.getInstance().apply {
                 timeInMillis = filter.lastChangedDate
                 add(Calendar.MONTH, intervalMonths)
@@ -156,7 +168,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
 
             Log.d(TAG, "  Filter ${filter.candleNumber}: LastChange=${Date(filter.lastChangedDate)}, Interval=$intervalMonths months, NextChange=${Date(nextChangeDate)}, DaysRemaining=$daysRemaining")
 
-            NearestMaintenanceInfo(candleName, formattedDate, daysRemaining)
+            maintenanceInfos.add(NearestMaintenanceInfo(candleName, formattedDate, daysRemaining))
         }
 
         val nearest = maintenanceInfos.minByOrNull { it.daysRemaining }

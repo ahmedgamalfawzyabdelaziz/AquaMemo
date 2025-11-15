@@ -57,6 +57,7 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import androidx.core.content.edit
 import com.ahmedgamal.aquamemo.ui.CandlePricesScreen
+import com.ahmedgamal.aquamemo.ui.CustomIntervalsScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -356,6 +357,13 @@ class MainActivity : ComponentActivity() {
                                 }
                                 composable("candle_prices_screen") {
                                     CandlePricesScreen(
+                                        onBackClick = {
+                                            navController.popBackStack()
+                                        }
+                                    )
+                                }
+                                composable("custom_intervals_screen") {
+                                    CustomIntervalsScreen(
                                         onBackClick = {
                                             navController.popBackStack()
                                         }

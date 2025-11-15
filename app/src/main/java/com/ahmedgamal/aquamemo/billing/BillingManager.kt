@@ -26,7 +26,6 @@ class BillingManager
     // ✅ حالة الاشتراك
     // 2. Add this new line to force it to "true" for testing
     private val _isPremium = MutableStateFlow(false) // ✅ TODO: change true to false
-    // --- END OF CHANGE ---
 
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
 

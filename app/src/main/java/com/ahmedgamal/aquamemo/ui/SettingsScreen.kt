@@ -1,16 +1,16 @@
 package com.ahmedgamal.aquamemo.ui
 
 import android.app.Activity
-import android.app.NotificationChannel // ✅ Import
-import android.app.NotificationManager // ✅ Import
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent // ✅ Import
-import android.media.AudioAttributes // ✅ Import
-import android.media.RingtoneManager // ✅ Import
+import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings // ✅ Import
-import android.util.Log // ✅ Import
+import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,7 +38,7 @@ import androidx.core.content.edit
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.ahmedgamal.aquamemo.AquaMemoApp // ✅ Import App constants
+import com.ahmedgamal.aquamemo.AquaMemoApp
 import com.ahmedgamal.aquamemo.R
 import com.ahmedgamal.aquamemo.billing.BillingState
 import com.ahmedgamal.aquamemo.utils.LanguageManager
@@ -339,7 +339,26 @@ fun SettingsScreen(
                                 modifier = Modifier.padding(start = 40.dp, top = 4.dp)
                             )
                         }
-                        // ✅ END: MODIFIED Notification Tone Setting Row
+                        Spacer(modifier = Modifier.height(16.dp)) // فاصل
+
+                        // زر تخصيص مدد الشمعات
+                        Button(
+                            onClick = {
+                                navController.navigate("custom_intervals_screen") {
+                                    launchSingleTop = true
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(Icons.Default.EditCalendar, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.custom_candle_intervals))
+                        }
                     }
                 )
 
@@ -349,7 +368,6 @@ fun SettingsScreen(
                 SettingsCard(
                     title = stringResource(R.string.App_appearance),
                     content = {
-                        // ... (Language Row remains the same) ...
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -550,8 +568,6 @@ fun SettingsScreen(
                         }
                     }
                 )
-
-                // ... (All other cards: Backup, History, Premium, Statistics, Delete remain the same) ...
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SettingsCard(

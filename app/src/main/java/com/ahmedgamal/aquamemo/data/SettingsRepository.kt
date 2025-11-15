@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -20,7 +21,16 @@ class SettingsRepository @Inject constructor(
     private val FONT_SIZE_KEY = stringPreferencesKey("font_size")
     private val SELECTED_CURRENCY_KEY = stringPreferencesKey("selected_currency")
     private val THEME_PREFERENCE_KEY = stringPreferencesKey("theme_preference")
-    // ✅ REMOVED: NOTIFICATION_TONE_URI_KEY
+
+    companion object {
+        val CANDLE_1_INTERVAL_KEY = intPreferencesKey("candle_1_interval")
+        val CANDLE_2_INTERVAL_KEY = intPreferencesKey("candle_2_interval")
+        val CANDLE_3_INTERVAL_KEY = intPreferencesKey("candle_3_interval")
+        val CANDLE_4_INTERVAL_KEY = intPreferencesKey("candle_4_interval")
+        val CANDLE_5_INTERVAL_KEY = intPreferencesKey("candle_5_interval")
+        val CANDLE_6_INTERVAL_KEY = intPreferencesKey("candle_6_interval")
+        val CANDLE_7_INTERVAL_KEY = intPreferencesKey("candle_7_interval")
+    }
 
     val remindersEnabledFlow: Flow<Boolean> = dataStore.data
         .map { preferences ->
@@ -78,6 +88,49 @@ class SettingsRepository @Inject constructor(
     suspend fun setThemePreference(theme: String) {
         dataStore.edit { preferences ->
             preferences[THEME_PREFERENCE_KEY] = theme
+        }
+    }
+    fun getIntervalForCandle(candleNumber: Int): Flow<Int> {
+        return dataStore.data.map { preferences ->
+            preferences[getKeyForCandle(candleNumber)] ?: getDefaultIntervalForCandle(candleNumber)
+        }
+    }
+    suspend fun setIntervalForCandle(candleNumber: Int, months: Int) {
+        dataStore.edit { preferences ->
+            preferences[getKeyForCandle(candleNumber)] = months
+        }
+    }
+    suspend fun resetAllIntervalsToDefault() {
+        dataStore.edit { preferences ->
+            (1..7).forEach { candleNumber ->
+                preferences.remove(getKeyForCandle(candleNumber))
+            }
+        }
+    }
+    private fun getKeyForCandle(candleNumber: Int): Preferences.Key<Int> {
+        return when (candleNumber) {
+            1 -> CANDLE_1_INTERVAL_KEY
+            2 -> CANDLE_2_INTERVAL_KEY
+            3 -> CANDLE_3_INTERVAL_KEY
+            4 -> CANDLE_4_INTERVAL_KEY
+            5 -> CANDLE_5_INTERVAL_KEY
+            6 -> CANDLE_6_INTERVAL_KEY
+            7 -> CANDLE_7_INTERVAL_KEY
+            else -> throw IllegalArgumentException("Invalid candle number")
+        }
+    }
+
+    /**
+     * دالة مساعدة للحصول على المدة الافتراضية
+     */
+    private fun getDefaultIntervalForCandle(candleNumber: Int): Int {
+        return when (candleNumber) {
+            1 -> 3    // المرحلة الأولى - 3 أشهر
+            2, 3 -> 6 // المرحلة الثانية والثالثة - 6 أشهر
+            4 -> 18   // المرحلة الرابعة - 18 شهراً
+            5 -> 8    // المرحلة الخامسة - 8 أشهر
+            6, 7 -> 18 // المرحلة السادسة والسابعة - 18 شهراً
+            else -> 0
         }
     }
 }

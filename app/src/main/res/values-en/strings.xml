@@ -260,4 +260,13 @@
     <string name="settings_notification_tone_pro_channel">Upgrading unlocks a separate channel you can customize in system settings.</string>
     <string name="settings_open_fail">Cannot open settings</string>
 
+    <!-- custom candle intervals -->
+    <string name="custom_candle_intervals">Customize Candle Intervals</string>
+    <string name="custom_intervals_description">Adjust the lifespan (in months) for each candle.</string>
+    <string name="intervals_disclaimer">These intervals are advisory and may vary based on consumption and water quality.</string>
+    <string name="reset_to_default">Reset to Default</string>
+    <string name="interval_months_label">Months</string>
+    <string name="intervals_saved">Intervals saved successfully</string>
+    <string name="intervals_reset">Intervals reset to default</string>
+
 </resources>

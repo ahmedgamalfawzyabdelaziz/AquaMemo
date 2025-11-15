@@ -33,7 +33,7 @@ import com.ahmedgamal.aquamemo.viewmodel.MainViewModel
 import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MaintenanceHistoryScreen(
@@ -42,7 +42,6 @@ fun MaintenanceHistoryScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    var fontSize by remember { mutableStateOf("medium") }
     var allFilters by remember { mutableStateOf(emptyList<Filter>()) }
     var sortOrder by remember { mutableStateOf(SortOrder.BY_CANDLE_NUMBER) }
     var showSortMenu by remember { mutableStateOf(false) }
@@ -50,11 +49,6 @@ fun MaintenanceHistoryScreen(
     var selectedFilterType by remember { mutableStateOf("") }
     var selectedCandleNumber by remember { mutableIntStateOf(0) }
     var showClearConfirmation by remember { mutableStateOf(false) }
-
-
-    LaunchedEffect(Unit) {
-        settingsViewModel.fontSize.collect { fontSize = it }
-    }
 
     LaunchedEffect(Unit) {
         mainViewModel.allFilters.collect { filters ->
@@ -83,177 +77,178 @@ fun MaintenanceHistoryScreen(
         sortAndGroupFilters(allFilters, sortOrder, context)
     }
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.maintenance_history),
-                            color = MaterialTheme.colorScheme.primary
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.maintenance_history),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    actions = {
-                        // زر خيارات الترتيب
-                        IconButton(onClick = { showSortMenu = true }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = stringResource(R.string.sort_options),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = showSortMenu,
-                            onDismissRequest = { showSortMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.sort_by_candle)) },
-                                onClick = {
-                                    sortOrder = SortOrder.BY_CANDLE_NUMBER
-                                    showSortMenu = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.sort_by_date)) },
-                                onClick = {
-                                    sortOrder = SortOrder.BY_DATE
-                                    showSortMenu = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.sort_by_name)) },
-                                onClick = {
-                                    sortOrder = SortOrder.BY_NAME
-                                    showSortMenu = false
-                                }
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-            },
-            containerColor = Color.Transparent,
-            bottomBar = {
-                AdBanner(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent)
-                )
-            }
-        )
-        { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(
-                        brush = Brush.verticalGradient(colors = gradientColors)
-                    )
-            ) {
-                if (allFilters.isEmpty()) {
-                    NoHistoryView()
-                } else {
-                    MaintenanceHistoryList(
-                        groupedFilters = sortedAndGroupedFilters,
-                        onCandleClick = { filterType, candleNumber ->
-                            selectedFilterType = filterType
-                            selectedCandleNumber = candleNumber
-                            showFilterChangeHistory = true
-                        }
-                    )
-                    if (allFilters.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            // زر مسح السجل
-                            Button(
-                                onClick = { showClearConfirmation = true },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.surface
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete, // تأكد من استيراد Icons.Default.Delete
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.clear_history))
-                            }
-
-                            Text(
-                                text = stringResource(R.string.clear_history_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
-                        }
                     }
-                    if (showClearConfirmation) {
-                        AlertDialog(
-                            onDismissRequest = { showClearConfirmation = false },
-                            title = {
-                                Text(
-                                    text = stringResource(R.string.clear_history),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.clear_history_confirmation),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        showClearConfirmation = false
-                                        mainViewModel.clearAllChangeHistory()
-                                        Toast.makeText(
-                                            context,
-                                            context.getString(R.string.clear_history_success),
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.error,
-                                        contentColor = MaterialTheme.colorScheme.surface
-                                    )
-                                ) {
-                                    Text(stringResource(R.string.clear_history))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(
-                                    onClick = { showClearConfirmation = false }
-                                ) {
-                                    Text(stringResource(R.string.cancel))
-                                }
+                },
+                actions = {
+                    // زر خيارات الترتيب
+                    IconButton(onClick = { showSortMenu = true }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = stringResource(R.string.sort_options),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showSortMenu,
+                        onDismissRequest = { showSortMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.sort_by_candle)) },
+                            onClick = {
+                                sortOrder = SortOrder.BY_CANDLE_NUMBER
+                                showSortMenu = false
                             }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.sort_by_date)) },
+                            onClick = {
+                                sortOrder = SortOrder.BY_DATE
+                                showSortMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.sort_by_name)) },
+                            onClick = {
+                                sortOrder = SortOrder.BY_NAME
+                                showSortMenu = false
+                            }
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        },
+        containerColor = Color.Transparent,
+        bottomBar = {
+            AdBanner(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            )
+        }
+    )
+    { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(
+                    brush = Brush.verticalGradient(colors = gradientColors)
+                )
+        ) {
+            if (allFilters.isEmpty()) {
+                NoHistoryView()
+            } else {
+                MaintenanceHistoryList(
+                    groupedFilters = sortedAndGroupedFilters,
+                    onCandleClick = { filterType, candleNumber ->
+                        selectedFilterType = filterType
+                        selectedCandleNumber = candleNumber
+                        showFilterChangeHistory = true
+                    },
+                    settingsViewModel = settingsViewModel
+                )
+                if (allFilters.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // زر مسح السجل
+                        Button(
+                            onClick = { showClearConfirmation = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.surface
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Delete, // تأكد من استيراد Icons.Default.Delete
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.clear_history))
+                        }
+
+                        Text(
+                            text = stringResource(R.string.clear_history_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
                 }
+                if (showClearConfirmation) {
+                    AlertDialog(
+                        onDismissRequest = { showClearConfirmation = false },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.clear_history),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(R.string.clear_history_confirmation),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showClearConfirmation = false
+                                    mainViewModel.clearAllChangeHistory()
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.clear_history_success),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Text(stringResource(R.string.clear_history))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { showClearConfirmation = false }
+                            ) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                        }
+                    )
+                }
             }
         }
+    }
 }
 
 // enum للترتيب
@@ -314,7 +309,8 @@ fun NoHistoryView() {
 @Composable
 fun MaintenanceHistoryList(
     groupedFilters: Map<String, List<Filter>>,
-    onCandleClick: (String, Int) -> Unit
+    onCandleClick: (String, Int) -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
     LocalContext.current
     val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
@@ -334,7 +330,8 @@ fun MaintenanceHistoryList(
                 MaintenanceHistoryItem(
                     filter = filter,
                     dateFormatter = dateFormatter,
-                    onClick = { onCandleClick(filter.filterType, filter.candleNumber) }
+                    onClick = { onCandleClick(filter.filterType, filter.candleNumber) },
+                    settingsViewModel = settingsViewModel
                 )
             }
 
@@ -387,9 +384,12 @@ fun FilterTypeHeader(filterType: String) {
 fun MaintenanceHistoryItem(
     filter: Filter,
     dateFormatter: SimpleDateFormat,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
+    val intervalMonths by settingsViewModel.getIntervalForCandle(filter.candleNumber)
+        .collectAsStateWithLifecycle(initialValue = 3)
 
     Card(
         modifier = Modifier
@@ -420,27 +420,24 @@ fun MaintenanceHistoryItem(
             )
 
             // الفترة بين التغييرات
-            val intervalMonths = getCandleIntervalInMonths(filter.candleNumber)
             HistoryInfoRow(
                 label = stringResource(R.string.change_interval),
-                value = context.resources.getQuantityString(
+                value = if (intervalMonths <= 0) "N/A" else context.resources.getQuantityString(
                     R.plurals.months_format,
                     intervalMonths,
                     intervalMonths
                 )
             )
-
             // الموعد القادم
-            val nextChangeDate = Calendar.getInstance().apply {
+            val nextChangeDate = if (intervalMonths <= 0) null else Calendar.getInstance().apply {
                 timeInMillis = filter.lastChangedDate
                 add(Calendar.MONTH, intervalMonths)
             }.timeInMillis
 
             HistoryInfoRow(
                 label = stringResource(R.string.next_scheduled_date),
-                value = dateFormatter.format(Date(nextChangeDate))
+                value = nextChangeDate?.let { dateFormatter.format(Date(it)) } ?: "N/A"
             )
-
             // رسالة اضغط للتفاصيل
             Spacer(modifier = Modifier.height(8.dp))
             Text(
