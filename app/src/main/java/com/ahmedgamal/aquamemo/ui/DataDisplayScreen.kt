@@ -26,12 +26,14 @@ import java.util.*
 import com.ahmedgamal.aquamemo.R
 import androidx.compose.ui.text.font.FontWeight
 import com.ahmedgamal.aquamemo.ads.AdBanner
+import androidx.compose.material.icons.filled.Notifications
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataDisplayScreen(
     onNavigateToEdit: (String, Int) -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     viewModel: MainViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -72,6 +74,13 @@ fun DataDisplayScreen(
                         titleContentColor = MaterialTheme.colorScheme.primary
                     ),
                     actions = {
+                        IconButton(onClick = onNavigateToNotifications) {
+                            Icon(
+                                Icons.Default.Notifications,
+                                contentDescription = stringResource(R.string.notifications), // ستحتاج لإضافة هذا النص
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                         IconButton(onClick = onNavigateToSettings) {
                             Icon(
                                 Icons.Filled.Settings,

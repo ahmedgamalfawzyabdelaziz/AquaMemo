@@ -35,12 +35,14 @@ import java.util.*
 import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
+import androidx.compose.material.icons.filled.Notifications
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -55,6 +57,7 @@ fun HomeScreen(
         HomeScreenContent(
             onNavigateToDataDisplay = onNavigateToDataDisplay,
             onNavigateToSettings = onNavigateToSettings,
+            onNavigateToNotifications = onNavigateToNotifications,
             maintenanceList = maintenanceList
         )
     }
@@ -63,6 +66,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     maintenanceList: List<MaintenanceInfo>
 ) {
     val gradientColors = remember {
@@ -98,6 +102,13 @@ fun HomeScreenContent(
                         titleContentColor = MaterialTheme.colorScheme.primary
                     ),
                     actions = {
+                        IconButton(onClick = onNavigateToNotifications) {
+                            Icon(
+                                Icons.Default.Notifications,
+                                contentDescription = stringResource(R.string.notifications),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                         IconButton(onClick = onNavigateToSettings) {
                             Icon(
                                 Icons.Default.Settings,

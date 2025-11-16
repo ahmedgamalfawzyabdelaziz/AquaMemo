@@ -73,6 +73,15 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
+        }
+        debug {
+            isMinifyEnabled = false
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
         }
     }
 }
@@ -143,7 +152,8 @@ dependencies {
 
     // Firebase (Import the BOM)
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.messaging)
 
     // ----- Testing -----
     testImplementation(libs.junit)

@@ -58,10 +58,20 @@ import java.util.Locale
 import androidx.core.content.edit
 import com.ahmedgamal.aquamemo.ui.CandlePricesScreen
 import com.ahmedgamal.aquamemo.ui.CustomIntervalsScreen
+import com.ahmedgamal.aquamemo.ui.NotificationScreen
+import android.content.Intent
+import com.ahmedgamal.aquamemo.data.FilterRepository
+import com.ahmedgamal.aquamemo.data.model.NotificationHistory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject
+    lateinit var filterRepository: FilterRepository
+    private val activityScope = CoroutineScope(Dispatchers.IO)
     private val mainViewModel: MainViewModel by viewModels()
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -77,9 +87,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // تفعيل Edge-to-Edge
         enableEdgeToEdge()
+        handleNotificationIntent(intent)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // ⬇️ حل إجباري للـ Release builds - يطبق قبل أي شيء
@@ -101,6 +110,10 @@ class MainActivity : ComponentActivity() {
         } else {
             initializeAppContent()
         }
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -280,6 +293,11 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate("settings_screen") {
                                                 launchSingleTop = true
                                             }
+                                        },
+                                        onNavigateToNotifications = {
+                                            navController.navigate("notification_screen") {
+                                                launchSingleTop = true
+                                            }
                                         }
                                     )
                                 }
@@ -342,6 +360,11 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate("settings_screen") {
                                                 launchSingleTop = true
                                             }
+                                        },
+                                        onNavigateToNotifications = {
+                                            navController.navigate("notification_screen") {
+                                                launchSingleTop = true
+                                            }
                                         }
                                     )
                                 }
@@ -369,6 +392,13 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                                 }
+                                composable("notification_screen") {
+                                    NotificationScreen(
+                                        onBackClick = {
+                                            navController.popBackStack()
+                                        }
+                                    )
+                                }
                             }
                         }
                         SplashScreen(isVisible = isSplashVisible, fontSize = fontSize)
@@ -384,5 +414,42 @@ class MainActivity : ComponentActivity() {
 
     private fun rescheduleAllNotifications() {
         mainViewModel.rescheduleAllNotifications()
+    }
+    private fun handleNotificationIntent(intent: Intent?) {
+        val extras = intent?.extras ?: return
+
+        // التحقق من وجود البيانات التي أرسلناها
+        if (extras.containsKey("title") && extras.containsKey("message")) {
+            val title = extras.getString("title")
+            val message = extras.getString("message")
+
+            if (title != null && message != null) {
+                Log.d("MainActivity", "Handling notification data from intent.")
+
+                // إنشاء كائن الإشعار
+                val notificationHistory = NotificationHistory(
+                    type = "REMOTE_ADMIN",
+                    title = title,
+                    message = message,
+                    timestamp = System.currentTimeMillis(),
+                    isRead = false,
+                    iconType = "INFO"
+                )
+
+                // حفظه في قاعدة البيانات في Coroutine
+                activityScope.launch {
+                    try {
+                        filterRepository.insertNotification(notificationHistory)
+
+                        // (هام) حذف البيانات من الـ Intent
+                        intent.removeExtra("title")
+                        intent.removeExtra("message")
+
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Failed to save remote message from intent", e)
+                    }
+                }
+            }
+        }
     }
 }

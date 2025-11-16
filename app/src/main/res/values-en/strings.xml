@@ -259,7 +259,6 @@
     <string name="settings_tone_customize">Customize</string>
     <string name="settings_notification_tone_pro_channel">Upgrading unlocks a separate channel you can customize in system settings.</string>
     <string name="settings_open_fail">Cannot open settings</string>
-
     <!-- custom candle intervals -->
     <string name="custom_candle_intervals">Customize Candle Intervals</string>
     <string name="custom_intervals_description">Adjust the lifespan (in months) for each candle.</string>
@@ -268,5 +267,15 @@
     <string name="interval_months_label">Months</string>
     <string name="intervals_saved">Intervals saved successfully</string>
     <string name="intervals_reset">Intervals reset to default</string>
+    <!-- Notification Button -->
+    <string name="notifications">Notifications</string>
+    <string name="mark_all_as_read">Mark all as read</string>
+    <string name="no_notifications_title">No Notifications Yet</string>
+    <string name="no_notifications_description">Your candle change reminders and important messages will appear here.</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="fcm_default_message">You have a new message from AquaMemo</string>
+    <string name="delete_all_notifications">Delete All Notifications</string>
+    <string name="delete_all_notifications_confirm">Are you sure you want to permanently delete all notifications?</string>
+    <string name="delete">Delete</string>
 
 </resources>

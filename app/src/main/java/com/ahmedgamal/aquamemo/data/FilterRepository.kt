@@ -5,6 +5,7 @@ import com.ahmedgamal.aquamemo.data.dao.FilterDao
 import com.ahmedgamal.aquamemo.data.model.CandlePrice
 import com.ahmedgamal.aquamemo.data.model.Filter
 import com.ahmedgamal.aquamemo.data.model.FilterChangeHistory
+import com.ahmedgamal.aquamemo.data.model.NotificationHistory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -69,5 +70,21 @@ class FilterRepository @Inject constructor(
                 filterDao.insertCandlePrice(price)
             }
         }
+    }
+
+    suspend fun insertNotification(notification: NotificationHistory) {
+        filterDao.insertNotification(notification)
+    }
+
+    fun getAllNotifications(): Flow<List<NotificationHistory>> {
+        return filterDao.getAllNotifications()
+    }
+
+    suspend fun markAllNotificationsAsRead() {
+        filterDao.markAllNotificationsAsRead()
+    }
+
+    suspend fun clearAllNotifications() {
+        filterDao.clearAllNotifications()
     }
 }

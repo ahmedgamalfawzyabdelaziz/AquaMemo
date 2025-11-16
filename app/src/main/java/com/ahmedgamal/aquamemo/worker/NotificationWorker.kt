@@ -10,127 +10,131 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.ahmedgamal.aquamemo.AquaMemoApp // ✅ Import App constants
+import com.ahmedgamal.aquamemo.AquaMemoApp
 import com.ahmedgamal.aquamemo.MainActivity
 import com.ahmedgamal.aquamemo.R
 import com.ahmedgamal.aquamemo.billing.BillingManager
+import com.ahmedgamal.aquamemo.data.FilterRepository
+import com.ahmedgamal.aquamemo.data.model.NotificationHistory
+import com.ahmedgamal.aquamemo.ui.getCandleNameForWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
+import java.util.Locale
+import android.content.res.Configuration
 
 @HiltWorker
-class NotificationWorker
-    @AssistedInject constructor(
+class NotificationWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val billingManager: BillingManager
+    private val billingManager: BillingManager,
+    private val filterRepository: FilterRepository
 ) : CoroutineWorker(context, workerParams) {
 
     private val vibrationPattern = longArrayOf(1000, 1000, 1000, 1000)
 
     override suspend fun doWork(): Result {
-        return try {
-            val candleNumber = inputData.getInt("candleNumber", -1)
-            val candleName = inputData.getString("candleName") ?: ""
+        val candleNumber = inputData.getInt("candleNumber", 0)
+        if (candleNumber == 0) {
+            Log.e("NotificationWorker", "No candleNumber provided.")
+            return Result.failure()
+        }
 
-            if (candleNumber != -1 && candleName.isNotEmpty()) {
-
-                val isPro = billingManager.isPremium.first()
-
-                // ✅ Choose Channel ID based on Pro status
-                val channelId = if (isPro) {
-                    Log.d("NotificationWorker", "User is Pro. Using PRO channel.")
-                    AquaMemoApp.PRO_CHANNEL_ID
-                } else {
-                    Log.d("NotificationWorker", "User is Free. Using DEFAULT channel.")
-                    AquaMemoApp.DEFAULT_CHANNEL_ID
-                }
-
-                val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-
-                // ✅ Pass channelId and audioAttributes to showNotification
-                showNotification(candleNumber, candleName, channelId, audioAttributes)
-                Log.d("NotificationWorker", "Notification show trigger successful for candle $candleNumber")
-                Result.success()
-            } else {
-                Log.e("NotificationWorker", "Insufficient data for notification")
-                Result.failure()
-            }
+        try {
+            sendNotification(candleNumber)
+            return Result.success()
         } catch (e: Exception) {
-            Log.e("NotificationWorker", "Error in doWork: ${e.message}", e)
-            Result.failure()
+            Log.e("NotificationWorker", "Error sending notification", e)
+            return Result.failure()
         }
     }
 
-    private fun showNotification(
-        candleNumber: Int,
-        candleName: String,
-        channelId: String,
-        audioAttributes: AudioAttributes // ✅ Receive attributes
-    ) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    // 🔽 قم باستبدال هذه الدالة بالكامل 🔽
+    private suspend fun sendNotification(candleNumber: Int) {
+        val isPro = billingManager.isPremium.first()
+        val channelId = if (isPro) AquaMemoApp.PRO_CHANNEL_ID else AquaMemoApp.DEFAULT_CHANNEL_ID
+        val sharedPref = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        val languageCode = sharedPref.getString("language", "en") ?: "en"
+        val locale = Locale.forLanguageTag(languageCode)
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        val localizedContext = context.createConfigurationContext(config)
 
-        // ✅ This function will now create the specific channel if it's missing
-        createNotificationChannelIfNeeded(notificationManager, channelId, audioAttributes)
+        // التأكد من إنشاء القناة
+        createNotificationChannelIfNeeded(channelId)
+
+        val candleName = getCandleNameForWorker(candleNumber, localizedContext)
+        val title = localizedContext.getString(R.string.notification_title)
+        val message = localizedContext.getString(R.string.notification_message, candleName)
+        val timestamp = System.currentTimeMillis()
+
+        val notificationHistory = NotificationHistory(
+            type = "LOCAL_CANDLE",
+            title = title,
+            message = message,
+            timestamp = timestamp,
+            isRead = false,
+            iconType = "CANDLE"
+        )
+
+        try {
+            filterRepository.insertNotification(notificationHistory)
+        } catch (e: Exception) {
+            Log.e("NotificationWorker", "Failed to save notification to DB", e)
+        }
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("candleNumber", candleNumber)
         }
-        val pendingIntent = PendingIntent.getActivity(
-            context, candleNumber, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            context,
+            candleNumber,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+        val soundUri = if (isPro) {
+            val soundSetting = Settings.System.getString(context.contentResolver, Settings.System.NOTIFICATION_SOUND)
+            soundSetting?.toUri() ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        } else {
+            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        }
+
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notification_title))
-            .setContentText(context.getString(R.string.notification_message, candleName))
+            .setContentTitle(title)
+            .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-        // ✅ No sound or vibration set on the builder. It will use the channel's settings.
+            .setSound(soundUri)
+            .setLights(Color.BLUE, 500, 500)
 
-        val notification = notificationBuilder.build()
-
-        Log.d("NotificationWorker", "Posting to channel: $channelId")
-        Log.d("NotificationWorker", "FINAL SOUND (from channel): ${notificationManager.getNotificationChannel(channelId)?.sound}")
-        Log.d("NotificationWorker", "FINAL VIBRATE (from channel): ${notificationManager.getNotificationChannel(channelId)?.vibrationPattern}")
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Log.w("NotificationWorker", "POST_NOTIFICATIONS permission not granted.")
-                return
-            }
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w("NotificationWorker", "POST_NOTIFICATIONS permission not granted.")
+            return
         }
-        try {
-            notificationManager.notify(candleNumber, notification)
-            Log.d("NotificationWorker", "NotificationManager.notify called successfully for ID $candleNumber")
-        } catch (e: Exception) {
-            Log.e("NotificationWorker", "Error calling NotificationManager.notify: ${e.message}", e)
-        }
+
+        NotificationManagerCompat.from(context).notify(candleNumber, builder.build())
     }
 
-    // ✅ Renamed and updated function to create *only the needed channel*
-    private fun createNotificationChannelIfNeeded(
-        notificationManager: NotificationManager,
-        channelId: String,
-        audioAttributes: AudioAttributes
-    ) {
+    private fun createNotificationChannelIfNeeded(channelId: String) {
 
-        // If channel already exists, do nothing.
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         if (notificationManager.getNotificationChannel(channelId) != null) {
             Log.d("NotificationWorker", "Channel $channelId already exists.")
             return
@@ -140,20 +144,21 @@ class NotificationWorker
 
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-        // Configure the channel based on which one we are creating
         val (name, descriptionText) = if (channelId == AquaMemoApp.PRO_CHANNEL_ID) {
-            // We are creating the Pro channel
             Pair(
                 context.getString(R.string.notification_channel_name_pro),
                 context.getString(R.string.notification_channel_description_pro)
             )
         } else {
-            // We are creating the Default channel
             Pair(
                 context.getString(R.string.notification_channel_name),
                 context.getString(R.string.notification_channel_description)
             )
         }
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .build()
 
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(channelId, name, importance).apply {
@@ -162,7 +167,7 @@ class NotificationWorker
             lightColor = Color.BLUE
             enableVibration(true)
             vibrationPattern = vibrationPattern
-            setSound(defaultSoundUri, audioAttributes) // Set default sound
+            setSound(defaultSoundUri, audioAttributes)
         }
 
         notificationManager.createNotificationChannel(channel)

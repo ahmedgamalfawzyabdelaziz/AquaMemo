@@ -5,7 +5,8 @@ import androidx.room.Room
 import com.ahmedgamal.aquamemo.data.AquaMemoDatabase
 import com.ahmedgamal.aquamemo.data.MIGRATION_2_3
 import com.ahmedgamal.aquamemo.data.MIGRATION_3_4
-import com.ahmedgamal.aquamemo.data.dao.FilterDao // ⬅️ Ensure this import is correct
+import com.ahmedgamal.aquamemo.data.MIGRATION_4_5
+import com.ahmedgamal.aquamemo.data.dao.FilterDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +25,7 @@ object DatabaseModule {
             context.applicationContext,
             AquaMemoDatabase::class.java,
             "aqua_memo_database"
-        ).addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+        ).addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
         .build()
     }
 

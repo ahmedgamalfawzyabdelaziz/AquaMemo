@@ -19,7 +19,6 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         """)
     }
 }
-// في DatabaseMigrations.kt - أضف migration جديدة
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // إنشاء جدول الأسعار الجديد
@@ -31,8 +30,6 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 currency TEXT NOT NULL DEFAULT 'USD'
             )
         """)
-
-        // إدخال البيانات الافتراضية
         val defaultPrices = CandlePrice.getDefaultPrices()
         defaultPrices.forEach { price ->
             db.execSQL("""
@@ -40,5 +37,23 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 VALUES (${price.candleNumber}, ${price.price}, '${price.currency}')
             """)
         }
+    }
+}
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // إنشاء جدول سجل الإشعارات الجديد
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `notification_history` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `type` TEXT NOT NULL,
+                `title` TEXT NOT NULL,
+                `message` TEXT NOT NULL,
+                `timestamp` INTEGER NOT NULL,
+                `isRead` INTEGER NOT NULL DEFAULT 0,
+                `iconType` TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
     }
 }

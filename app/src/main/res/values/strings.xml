@@ -270,5 +270,15 @@
     <string name="interval_months_label">أشهر</string>
     <string name="intervals_saved">تم حفظ المدد بنجاح</string>
     <string name="intervals_reset">تم استعادة المدد الافتراضية</string>
+    <!-- زر الإشعارات -->
+    <string name="notifications">الإشعارات</string>
+    <string name="mark_all_as_read">تحديد الكل كمقروء</string>
+    <string name="no_notifications_title">لا توجد إشعارات بعد</string>
+    <string name="no_notifications_description">ستظهر الإشعارات الخاصة بمواعيد تغيير الشمعات والرسائل الهامة هنا.</string>
+    <string name="yesterday">أمس</string>
+    <string name="fcm_default_message">لديك رسالة جديدة من AquaMemo</string>
+    <string name="delete_all_notifications">حذف كل الإشعارات</string>
+    <string name="delete_all_notifications_confirm">هل أنت متأكد أنك تريد حذف جميع الإشعارات نهائياً؟</string>
+    <string name="delete">حذف</string>
 
 </resources>

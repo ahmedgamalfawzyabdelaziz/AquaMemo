@@ -8,6 +8,7 @@ import androidx.room.Update
 import com.ahmedgamal.aquamemo.data.model.CandlePrice
 import com.ahmedgamal.aquamemo.data.model.Filter
 import com.ahmedgamal.aquamemo.data.model.FilterChangeHistory
+import com.ahmedgamal.aquamemo.data.model.NotificationHistory
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -57,4 +58,16 @@ interface FilterDao {
 
     @Query("UPDATE candle_prices SET currency = :currency")
     suspend fun updateAllCurrencies(currency: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNotification(notification: NotificationHistory)
+
+    @Query("SELECT * FROM notification_history ORDER BY timestamp DESC")
+    fun getAllNotifications(): Flow<List<NotificationHistory>>
+
+    @Query("UPDATE notification_history SET isRead = 1 WHERE isRead = 0")
+    suspend fun markAllNotificationsAsRead()
+
+    @Query("DELETE FROM notification_history")
+    suspend fun clearAllNotifications()
 }
