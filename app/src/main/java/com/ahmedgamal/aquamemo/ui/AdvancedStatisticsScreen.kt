@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.ahmedgamal.aquamemo.data.model.CandlePrice
 import com.ahmedgamal.aquamemo.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.first
+import androidx.compose.ui.res.pluralStringResource
 import kotlin.collections.sumOf
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -274,7 +275,11 @@ fun OverviewCard(statistics: AdvancedStatistics) {
                     StatisticItem(
                         icon = Icons.Default.CalendarMonth,
                         label = stringResource(R.string.average_age),
-                        value = stringResource(R.string.days_format, statistics.averageCandleAge),
+                        value = pluralStringResource(
+                            R.plurals.plurals_days_format,
+                            statistics.averageCandleAge,
+                            statistics.averageCandleAge
+                        ),
                         color = Color(0xFF4CAF50)
                     )
                 }
@@ -783,8 +788,13 @@ fun PerformanceRow(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+            val lifespanInMonths = averageLifespan / 30
             Text(
-                text = stringResource(R.string.average_lifespan_format, averageLifespan / 30),
+                text = pluralStringResource(
+                    R.plurals.plurals_average_lifespan_months,
+                    lifespanInMonths,
+                    lifespanInMonths
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -973,7 +983,13 @@ private suspend fun calculateAdvancedStatistics(
     val recommendations = mutableListOf<String>()
 
     if (overdueCandles > 0) {
-        recommendations.add(context.getString(R.string.recommendation_overdue, overdueCandles))
+        recommendations.add(
+            context.resources.getQuantityString(
+                R.plurals.plurals_recommendation_overdue,
+                overdueCandles,
+                overdueCandles
+            )
+        )
     }
 
     if (usageEfficiency < 80) {
@@ -1017,11 +1033,11 @@ private suspend fun calculateAdvancedStatistics(
         totalCandles = totalCandles,
         totalChanges = totalChanges,
         averageCandleAge = averageCandleAge,
-        monthlyCost = monthlyCost.roundTo(2),
+        monthlyCost = monthlyCost.roundToTwoDecimals(),
         usageEfficiency = usageEfficiency,
-        totalSpent = totalSpent.roundTo(2),
-        estimatedSavings = (totalSpent * 0.15).roundTo(2),
-        yearlyCost = yearlyCost.roundTo(2),
+        totalSpent = totalSpent.roundToTwoDecimals(),
+        estimatedSavings = (totalSpent * 0.15).roundToTwoDecimals(),
+        yearlyCost = yearlyCost.roundToTwoDecimals(),
         replacementRate = (totalChanges * 100 / totalCandles).coerceIn(0, 100),
         nextReplacement = nextReplacement,
         overdueCandles = overdueCandles,
@@ -1033,9 +1049,8 @@ private suspend fun calculateAdvancedStatistics(
     )
 }
 
-private fun Double.roundTo(decimals: Int): Double {
-    var multiplier = 1.0
-    repeat(decimals) { multiplier *= 10 }
+private fun Double.roundToTwoDecimals(): Double {
+    val multiplier = 100.0
     return (this * multiplier).roundToInt() / multiplier
 }
 

@@ -1,3 +1,5 @@
+@file:Suppress("RemoveRedundantQualifierName")
+
 package com.ahmedgamal.aquamemo
 
 import android.app.Application

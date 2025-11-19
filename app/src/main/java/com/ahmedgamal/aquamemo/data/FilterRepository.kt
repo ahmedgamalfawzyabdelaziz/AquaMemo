@@ -59,10 +59,6 @@ class FilterRepository @Inject constructor(
         filterDao.updateCandlePrice(candleNumber, price)
     }
 
-    suspend fun updateAllCurrencies(currency: String) {
-        filterDao.updateAllCurrencies(currency)
-    }
-
     suspend fun initializeDefaultPrices() {
         val existingPrices = filterDao.getAllCandlePrices().first()
         if (existingPrices.isEmpty()) {

@@ -38,17 +38,11 @@ interface FilterDao {
     @Query("SELECT * FROM filter_change_history WHERE filterType = :filterType AND candleNumber = :candleNumber ORDER BY changeDate DESC")
     fun getFilterChanges(filterType: String, candleNumber: Int): Flow<List<FilterChangeHistory>>
 
-    @Query("SELECT * FROM filter_change_history WHERE filterType = :filterType ORDER BY changeDate DESC")
-    fun getAllChangesByFilterType(filterType: String): Flow<List<FilterChangeHistory>>
-
     @Query("DELETE FROM filter_change_history WHERE filterType = :filterType AND candleNumber = :candleNumber")
     suspend fun deleteFilterChanges(filterType: String, candleNumber: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCandlePrice(candlePrice: CandlePrice)
-
-    @Query("SELECT * FROM candle_prices WHERE candleNumber = :candleNumber")
-    suspend fun getCandlePrice(candleNumber: Int): CandlePrice?
 
     @Query("SELECT * FROM candle_prices")
     fun getAllCandlePrices(): Flow<List<CandlePrice>>

@@ -1,18 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Aqua Memo</string>
-    <string name="candle_data_title">Candles Type</string>
-    <string name="filter_data_title">Filter Type</string>
     <string name="loading_data">Loading…</string>
     <string name="data_saved_successfully">data saved successfully</string>
     <string name="no_data_to_save">No Data To Save</string>
     <string name="save">Save</string>
     <string name="last_change_date">Last Change Date:</string>
-    <string name="next_change_date">Next Change Date:</string>
     <string name="edit_data">Edit Data</string>
     <string name="select_date">Select Date</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
-    <string name="filter_data_display">Filter Data</string>
     <string name="settings">Settings</string>
     <string name="no_data_available">No Data Available</string>
     <string name="notification_permission_granted">notification permission granted</string>
@@ -29,7 +25,6 @@
     <string name="small">Small</string>
     <string name="medium">Medium</string>
     <string name="large">Large</string>
-    <string name="default_tone">Default tone</string>
     <string name="filter_reminders">Filter Reminders</string>
     <string name="enable_reminders">Enable Reminders</string>
     <string name="reminder_time">reminder time</string>
@@ -40,7 +35,6 @@
     <string name="create_backup">Create Backup</string>
     <string name="restore_from_file">Restore From File</string>
     <string name="all_data_deleted">All Data Deleted</string>
-    <string name="delete_all">Delete All</string>
     <string name="select_reminder_time">Select Remindr Time</string>
     <string name="save_error">Save Error</string>
     <string name="backup_created">Backup created</string>
@@ -72,13 +66,9 @@
     <string name="delete_data_confirmation_message">Are you sure you want to delete all data? This action cannot be undone.</string>
     <!-- Ads -->
     <string name="premium_features">Premium Features</string>
-    <string name="remove_ads">Remove Ads</string>
-    <string name="ads_removed">Ads Removed</string>
-    <string name="remove_ads_description">Enjoy an ad-free experience</string>
     <string name="premium_version">Pro Version</string>
     <string name="premium_description">Advanced features and ads off with full support</string>
     <string name="subscribe">Subscribe</string>
-    <string name="subscription_period">Annual Subscription</string>
     <string name="restore_purchase">Restore Purchase</string>
     <string name="purchase_successful">Purchase Successful</string>
     <string name="purchase_failed">Purchase Failed</string>
@@ -89,47 +79,18 @@
     <string name="ad_initialization_error">Initialization error: %s</string>
     <string name="ad_unexpected_error">Unexpected error: %s</string>
     <string name="ad_load_error">Error code: %d - %s</string>
-    <string name="ad_no_fill">No ads available at the moment</string>
-    <string name="ad_disabled">Ads disabled - Purchase completed</string>
-    <string name="ad_loaded">Ad loaded successfully!</string>
-    <string name="ad_loading_start">Loading ad…</string>
-    <string name="ad_clicked">Ad clicked</string>
-    <string name="ad_opened">Ad opened</string>
-    <string name="ad_closed">Ad closed</string>
-    <string name="admob_initialized">MobileAds initialized successfully</string>
     <string name="monthly_plan">Monthly Blan</string>
     <string name="yearly_plan">Yearly Blan</string>
 
     <!-- Prices -->
     <string name="theme">Theme</string>
     <string name="theme_system">System</string>
-    <string name="price_loading">Loading price…</string>
     <!-- Billing Manager Strings -->
-    <string name="billing_initializing">Initializing billing system…</string>
-    <string name="billing_connected">Connected successfully</string>
-    <string name="billing_disconnected">Connection disconnected</string>
-    <string name="billing_reconnecting">Reconnecting…</string>
-    <string name="billing_purchase_success">Purchase successful</string>
     <string name="billing_user_canceled">User canceled the operation</string>
     <string name="billing_item_owned">Product already owned</string>
-    <string name="billing_purchase_error">Purchase error: %s</string>
-    <string name="billing_checking_purchases">Checking current purchases</string>
-    <string name="billing_purchases_checked">All purchases checked</string>
-    <string name="billing_purchase_start">Starting purchase: %s</string>
     <string name="billing_product_not_found">Product not found: %s</string>
-    <string name="billing_product_found">Product found: %s</string>
-    <string name="billing_flow_launched">Purchase flow launched successfully</string>
-    <string name="billing_developer_error">Developer error: Check billing settings</string>
     <string name="billing_flow_failed">Failed to launch purchase flow: %s</string>
-    <string name="billing_unexpected_error">Unexpected purchase error: %s</string>
-    <string name="billing_processing_purchases">Processing %d purchases</string>
-    <string name="billing_processing_purchase">Processing purchase: %s</string>
-    <string name="billing_premium_activated">Premium subscription activated</string>
-    <string name="billing_ads_removed">Ads removed</string>
-    <string name="billing_acknowledge_success">Purchase acknowledged successfully</string>
-    <string name="billing_acknowledge_failed">Failed to acknowledge purchase: %s</string>
     <string name="billing_restoring">Restoring purchases</string>
-    <string name="billing_cleaning">Cleaning billing system</string>
     <string name="priority_urgent">Urgent!</string>
     <string name="priority_soon">Soon</string>
     <string name="priority_upcoming">Upcoming</string>
@@ -139,7 +100,6 @@
     <string name="no_history_description">All previous candle changes will appear here</string>
     <string name="change_interval">Change Interval</string>
     <string name="next_scheduled_date">Next Scheduled Date</string>
-    <string name="months_format">%d months</string>
     <plurals name="months_format">
         <item quantity="one">%d month</item>
         <item quantity="other">%d months</item>
@@ -166,13 +126,7 @@
     <string name="advanced_statistics">Advanced Statistics</string>
     <string name="no_statistics_available">No statistics available</string>
     <string name="no_statistics_description">Add filter data to view statistics</string>
-    <string name="general_statistics">General Statistics</string>
-    <string name="total_changes_stat">Total Changes</string>
-    <string name="filter_types">Filter Types</string>
-    <string name="most_changed_candle">Most Changed Candle</string>
     <string name="total_candles">Total Candles</string>
-    <string name="average_interval">Average Interval</string>
-    <string name="days_format">%d days</string>
     <!-- English versions -->
     <string name="premium_feature_locked">This feature is available only for Premium subscribers</string>
     <string name="premium_features_list">🔍 Advanced statistical reports\n📊 Interactive charts\n📈 Smart performance analytics\n💡 Customized recommendations</string>
@@ -193,11 +147,8 @@
     <string name="replacement_rate">Replacement Rate</string>
     <string name="next_replacement">Next Replacement</string>
     <string name="overdue_candles">Overdue Candles</string>
-    <string name="average_lifespan_format">Average Lifespan: %d months</string>
-    <string name="price_format">$%.2f</string>
     <string name="percentage_format">%d%%</string>
     <string name="no_data">No data</string>
-    <string name="recommendation_overdue">There are %d overdue candles that need immediate replacement</string>
     <string name="recommendation_efficiency">You can improve usage efficiency by adhering to maintenance schedules</string>
     <string name="recommendation_cost">Consider buying candles in bulk to save costs</string>
     <string name="recommendation_performance">%s filters need improvement in maintenance efficiency</string>
@@ -205,16 +156,27 @@
     <string name="candle_prices_settings">Candle Prices</string>
     <string name="currency">Currency</string>
     <string name="update_prices">Update Prices</string>
-    <string name="default_prices">Default Prices</string>
     <string name="customize_prices_description">Adjust candle prices according to your region</string>
+    <plurals name="plurals_days_format">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <plurals name="plurals_average_lifespan_months">
+        <item quantity="one">Average Lifespan: %d month</item>
+        <item quantity="other">Average Lifespan: %d months</item>
+    </plurals>
+
+    <plurals name="plurals_recommendation_overdue">
+        <item quantity="one">There is %d overdue candle that needs immediate replacement.</item>
+        <item quantity="other">There are %d overdue candles that need immediate replacement.</item>
+    </plurals>
 
     <!-- Statistics Button in Settings -->
     <string name="notification_channel_description">Water filter change reminders</string>
     <string name="view_statistics">View Statistics</string>
     <string name="view_statistics_description">Advanced statistics about filter usage</string>
     <string name="tap_for_details">Tap for details</string>
-    <string name="change_note_template">Changed %1$s from %2$s to %3$s</string>
-    <string name="initial_change_note">Initial setup for %s</string>
     <string name="notification_title">Water filter change reminder</string>
     <string name="notification_message">It\'s time to change %s</string>
     <string name="notification_channel_name">Filter Reminders</string>
@@ -236,8 +198,6 @@
     <string name="no_data_widget">No filter data. Add a filter first.</string>
     <string name="widget_pro_feature">Subscribe to get the widget.</string>
     <string name="widget_pro_unlock">Subscribe to unlock widgets and more.</string>
-    <string name="channel_name">Filter Change Reminder</string>
-    <string name="channel_description">Notifications for filter replacement dates</string>
     <string name="widget_config_title">Widget Settings</string>
     <string name="widget_config_font_size">Font Size</string>
     <string name="widget_config_small">Small</string>
@@ -249,11 +209,6 @@
     <string name="widget_preview_stage_1">Stage 1</string>
     <!-- Notifications -->
     <string name="settings_notification_tone">Notification Tone</string>
-    <string name="settings_select_tone_title">Select Notification Tone</string>
-    <string name="settings_notification_tone_pro">Custom notification tones are a Pro feature.</string>
-    <string name="settings_tone_default">Default</string>
-    <string name="settings_tone_unknown">Unknown Tone</string>
-    <string name="widget_loading">Loading…</string>
     <string name="notification_channel_name_pro">Pro Reminders</string>
     <string name="notification_channel_description_pro">Customizable notifications for Pro users</string>
     <string name="settings_tone_customize">Customize</string>
@@ -265,7 +220,6 @@
     <string name="intervals_disclaimer">These intervals are advisory and may vary based on consumption and water quality.</string>
     <string name="reset_to_default">Reset to Default</string>
     <string name="interval_months_label">Months</string>
-    <string name="intervals_saved">Intervals saved successfully</string>
     <string name="intervals_reset">Intervals reset to default</string>
     <!-- Notification Button -->
     <string name="notifications">Notifications</string>

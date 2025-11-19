@@ -40,8 +40,6 @@ class NotificationWorker @AssistedInject constructor(
     private val filterRepository: FilterRepository
 ) : CoroutineWorker(context, workerParams) {
 
-    private val vibrationPattern = longArrayOf(1000, 1000, 1000, 1000)
-
     override suspend fun doWork(): Result {
         val candleNumber = inputData.getInt("candleNumber", 0)
         if (candleNumber == 0) {

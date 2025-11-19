@@ -240,8 +240,7 @@ fun WidgetPreview(
     // Get colors from the standard MaterialTheme
     val surfaceColor = MaterialTheme.colorScheme.surface
     val backgroundColorWithAlpha = surfaceColor.copy(alpha = backgroundOpacity)
-    val daysColor = getDaysRemainingColorPreview(days = sampleDaysRemaining)
-
+    val daysColor = getDaysRemainingColorPreview()
     Card(
         modifier = Modifier
             .fillMaxWidth(0.8f) // Make preview slightly smaller than full width
@@ -308,17 +307,9 @@ fun WidgetPreview(
     }
 }
 
-/**
- * A helper function for the preview that returns standard [Color] objects
- * based on the MaterialTheme.
- */
 @Composable
-private fun getDaysRemainingColorPreview(days: Int): Color {
-    return when {
-        days <= 7 -> MaterialTheme.colorScheme.error // Red for urgent
-        days <= 30 -> MaterialTheme.colorScheme.tertiary // Orange for warning
-        else -> MaterialTheme.colorScheme.primary // Default color
-    }
+private fun getDaysRemainingColorPreview(): Color {
+    return MaterialTheme.colorScheme.primary
 }
 
 // You can use this to preview your configuration screen in Android Studio

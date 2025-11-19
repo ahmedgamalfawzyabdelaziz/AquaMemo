@@ -12,82 +12,78 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
+private val CANDLE_1_INTERVAL_KEY = intPreferencesKey("candle_1_interval")
+private val CANDLE_2_INTERVAL_KEY = intPreferencesKey("candle_2_interval")
+private val CANDLE_3_INTERVAL_KEY = intPreferencesKey("candle_3_interval")
+private val CANDLE_4_INTERVAL_KEY = intPreferencesKey("candle_4_interval")
+private val CANDLE_5_INTERVAL_KEY = intPreferencesKey("candle_5_interval")
+private val CANDLE_6_INTERVAL_KEY = intPreferencesKey("candle_6_interval")
+private val CANDLE_7_INTERVAL_KEY = intPreferencesKey("candle_7_interval")
+
 @Singleton
 class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
-    private val REMINDERS_ENABLED_KEY = booleanPreferencesKey("reminders_enabled")
-    private val REMINDER_TIME_KEY = stringPreferencesKey("reminder_time")
-    private val FONT_SIZE_KEY = stringPreferencesKey("font_size")
-    private val SELECTED_CURRENCY_KEY = stringPreferencesKey("selected_currency")
-    private val THEME_PREFERENCE_KEY = stringPreferencesKey("theme_preference")
-
-    companion object {
-        val CANDLE_1_INTERVAL_KEY = intPreferencesKey("candle_1_interval")
-        val CANDLE_2_INTERVAL_KEY = intPreferencesKey("candle_2_interval")
-        val CANDLE_3_INTERVAL_KEY = intPreferencesKey("candle_3_interval")
-        val CANDLE_4_INTERVAL_KEY = intPreferencesKey("candle_4_interval")
-        val CANDLE_5_INTERVAL_KEY = intPreferencesKey("candle_5_interval")
-        val CANDLE_6_INTERVAL_KEY = intPreferencesKey("candle_6_interval")
-        val CANDLE_7_INTERVAL_KEY = intPreferencesKey("candle_7_interval")
-    }
-
+    private val remindersEnabledKey = booleanPreferencesKey("reminders_enabled")
+    private val reminderTimeKey = stringPreferencesKey("reminder_time")
+    private val fontSizeKey = stringPreferencesKey("font_size")
+    private val selectedCurrencyKey = stringPreferencesKey("selected_currency")
+    private val themePreferenceKey = stringPreferencesKey("theme_preference")
     val remindersEnabledFlow: Flow<Boolean> = dataStore.data
         .map { preferences ->
-            preferences[REMINDERS_ENABLED_KEY] ?: true
+            preferences[remindersEnabledKey] ?: true
         }
         .distinctUntilChanged()
 
     val reminderTimeFlow: Flow<String> = dataStore.data
         .map { preferences ->
-            preferences[REMINDER_TIME_KEY] ?: "09:00"
+            preferences[reminderTimeKey] ?: "09:00"
         }
         .distinctUntilChanged()
 
     val fontSizeFlow: Flow<String> = dataStore.data
         .map { preferences ->
-            preferences[FONT_SIZE_KEY] ?: "medium"
+            preferences[fontSizeKey] ?: "medium"
         }
         .distinctUntilChanged()
 
     val selectedCurrencyFlow: Flow<String> = dataStore.data
         .map { preferences ->
-            preferences[SELECTED_CURRENCY_KEY] ?: "USD"
+            preferences[selectedCurrencyKey] ?: "USD"
         }
 
     val themePreferenceFlow: Flow<String> = dataStore.data
         .map { preferences ->
-            preferences[THEME_PREFERENCE_KEY] ?: "system" // Default to system
+            preferences[themePreferenceKey] ?: "system" // Default to system
         }
         .distinctUntilChanged()
 
-    // ✅ REMOVED: notificationToneUriFlow
 
     suspend fun setRemindersEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
-            preferences[REMINDERS_ENABLED_KEY] = enabled
+            preferences[remindersEnabledKey] = enabled
         }
     }
 
     suspend fun setReminderTime(time: String) {
         dataStore.edit { preferences ->
-            preferences[REMINDER_TIME_KEY] = time
+            preferences[reminderTimeKey] = time
         }
     }
 
     suspend fun setFontSize(fontSize: String) {
         dataStore.edit { preferences ->
-            preferences[FONT_SIZE_KEY] = fontSize
+            preferences[fontSizeKey] = fontSize
         }
     }
     suspend fun setSelectedCurrency(currency: String) {
         dataStore.edit { preferences ->
-            preferences[SELECTED_CURRENCY_KEY] = currency
+            preferences[selectedCurrencyKey] = currency
         }
     }
     suspend fun setThemePreference(theme: String) {
         dataStore.edit { preferences ->
-            preferences[THEME_PREFERENCE_KEY] = theme
+            preferences[themePreferenceKey] = theme
         }
     }
     fun getIntervalForCandle(candleNumber: Int): Flow<Int> {

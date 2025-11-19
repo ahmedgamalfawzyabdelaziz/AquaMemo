@@ -1,19 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="widget_urgent_red">#D32F2F</color>
-    <color name="widget_soon_orange">#FFA000</color>
-    <color name="aqua_primary_light">#4385C6</color>
-    <color name="aqua_on_primary_light">#FFFFFF</color>
-    <color name="aqua_surface_light">#FFFFFF</color>
-    <color name="aqua_on_surface_light">#1a1a1a</color>
-    <color name="aqua_on_surface_variant_light">#666666</color>
-    <color name="aqua_background_light">#F5F5F5</color>
-    <color name="aqua_primary_dark">#4DB6AC</color>
-    <color name="aqua_on_primary_dark">#011627</color>
-    <color name="aqua_surface_dark">#022B4A</color>
-    <color name="aqua_on_surface_dark">#E0E0E0</color>
-    <color name="aqua_on_surface_variant_dark">#CCCCCC</color>
-    <color name="aqua_background_dark">#011627</color>
-    <color name="widget_urgent_red_dark">#FFB4AB</color>
-    <color name="widget_soon_orange_dark">#FFB967</color>
-</resources>
+<resources />
