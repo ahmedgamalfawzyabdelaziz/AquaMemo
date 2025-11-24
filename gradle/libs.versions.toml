@@ -25,6 +25,9 @@ room = "2.8.3"
 # DataStore
 datastore-preferences = "1.1.7"
 
+# Facebook
+facebook-android-sdk = "18.1.3"
+
 # WorkManager
 work-manager = "2.11.0"
 
@@ -68,6 +71,9 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 integrity = { module = "com.google.android.play:integrity", version.ref = "integrity" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+# Facebook
+facebook-android-sdk = { module = "com.facebook.android:facebook-android-sdk", version.ref = "facebook-android-sdk" }
 
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }

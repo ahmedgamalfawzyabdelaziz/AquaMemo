@@ -15,6 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
+import com.facebook.appevents.AppEventsLogger
+
 @Singleton
 class BillingManager
     @Inject
@@ -151,9 +153,13 @@ class BillingManager
                     purchase.products.contains("premium_subscription") -> {
                         _isPremium.update { true }
                         _adsRemoved.update { true } // ✅ إخفاء الإعلانات مع الاشتراك
+                        // ✅✅✅ إضافة تتبع الشراء لفيسبوك ✅✅✅
+                        logFacebookPurchase(purchase)
                     }
                     purchase.products.contains("remove_ads") -> {
                         _adsRemoved.update { true }
+                        // ✅✅✅ إضافة تتبع الشراء لفيسبوك ✅✅✅
+                        logFacebookPurchase(purchase)
                     }
                 }
                 if (!purchase.isAcknowledged) {
@@ -161,6 +167,10 @@ class BillingManager
                 }
             }
         }
+    }
+    private fun logFacebookPurchase(purchase: Purchase) {
+        val logger = AppEventsLogger.newLogger(context)
+        logger.logEvent("Subscription_Activated")
     }
 
     private fun acknowledgePurchase(purchase: Purchase) {

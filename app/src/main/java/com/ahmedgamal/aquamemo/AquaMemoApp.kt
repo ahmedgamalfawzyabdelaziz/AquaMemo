@@ -6,12 +6,14 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.media.AudioAttributes // ✅ Import
-import android.media.RingtoneManager // ✅ Import
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import com.facebook.FacebookSdk
+import com.facebook.appevents.AppEventsLogger
 
 @HiltAndroidApp
 class AquaMemoApp : Application(), Configuration.Provider {
@@ -32,6 +34,9 @@ class AquaMemoApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         // ✅ Changed to only create the default channel
+        // ✅ 1. تهيئة Facebook SDK
+        FacebookSdk.sdkInitialize(applicationContext)
+        AppEventsLogger.activateApp(this)
         createDefaultNotificationChannel()
     }
 

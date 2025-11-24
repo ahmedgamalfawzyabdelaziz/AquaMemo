@@ -196,6 +196,7 @@
     <string name="view_statistics">عرض الإحصائيات</string>
     <string name="view_statistics_description">إحصائيات متقدمة عن استخدام الفلاتر</string>
     <string name="tap_for_details">اضغط للتفاصيل</string>
+    <string name="facebook_app_id" translatable="false">813672221641676</string>
 
     <!-- Widget -->
     <string name="widget_description">عرض أقرب موعد لتغيير شمعة الفلتر</string>

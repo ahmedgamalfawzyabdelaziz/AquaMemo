@@ -96,6 +96,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // Facebook
+    implementation(libs.facebook.android.sdk)
+
     // Jetpack Compose & Material3
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
