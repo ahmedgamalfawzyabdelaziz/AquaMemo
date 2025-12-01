@@ -92,7 +92,6 @@ fun DataDisplayScreen(
                 )
             },
             bottomBar = {
-                // ✅ الإعلان في الـ BottomBar
                 AdBanner(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,7 +146,7 @@ private fun FiltersListView(
         groupedFilters.forEach { (filterType, filters) ->
             item(key = "header_$filterType") {
                 Text(
-                    text = filterType,
+                    text = getLocalizedFilterType(filterType),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -267,5 +266,14 @@ private fun DateRow(label: String, value: String) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary
         )
+    }
+}
+@Composable
+private fun getLocalizedFilterType(filterTypeKey: String): String {
+    return when(filterTypeKey) {
+        "3 Stages" -> stringResource(R.string.filter_type_3_stages)
+        "5 Stages" -> stringResource(R.string.filter_type_5_stages)
+        "7 Stages" -> stringResource(R.string.filter_type_7_stages)
+        else -> filterTypeKey // في حالة أي قيمة أخرى غير متوقعة
     }
 }

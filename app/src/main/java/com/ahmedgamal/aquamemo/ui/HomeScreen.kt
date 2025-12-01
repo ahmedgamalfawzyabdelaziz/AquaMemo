@@ -162,7 +162,6 @@ fun HomeScreenContent(
                 AdBanner(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
                 )
                 // زر الانتقال لبيانات الشمعات
                 Button(

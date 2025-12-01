@@ -138,8 +138,6 @@ class MainActivity : ComponentActivity() {
         if (!sharedPref.contains("language")) {
             sharedPref.edit { putString("language", "en") }
         }
-
-        // تحقق وإصلاح أي بيانات تالفة
         val currentLang = sharedPref.getString("language", "en") ?: "en"
 
         if (currentLang != "en" && currentLang != "ar") {
@@ -149,8 +147,6 @@ class MainActivity : ComponentActivity() {
 
         sharedPref.getString("language", "error") ?: "error"
     }
-
-    // ⬇️ دالة للحل الخاص بأجهزة Realme, Xiaomi, Oppo
     private fun applyLanguageForCustomDevices() {
         if (Build.MANUFACTURER.equals("realme", ignoreCase = true) ||
             Build.MANUFACTURER.equals("xiaomi", ignoreCase = true) ||
@@ -176,11 +172,7 @@ class MainActivity : ComponentActivity() {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val fontSize by settingsViewModel.fontSize.collectAsState(initial = "medium")
             val themePreference by settingsViewModel.themePreference.collectAsState(initial = "system")
-            var isSplashVisible by remember { mutableStateOf(true) }
-            LaunchedEffect(Unit) {
-                delay(7000L) // 7-second delay for your video
-                isSplashVisible = false
-            }
+
             val gradientColors = remember {
                 listOf(
                     Color(0xFFE3F2FD),
@@ -208,6 +200,9 @@ class MainActivity : ComponentActivity() {
                         var showSplashScreen by remember { mutableStateOf(true) }
                         var startDestination by remember { mutableStateOf("home_screen") }
                         var isLoading by remember { mutableStateOf(true) }
+                        val hideSplashScreen = {
+                            showSplashScreen = false
+                        }
 
                         LaunchedEffect(key1 = true) {
                             delay(1000)
@@ -234,12 +229,16 @@ class MainActivity : ComponentActivity() {
                             startDestination = if (hasData) "home_screen" else "main_screen"
                             isLoading = false
 
-                            delay(500)
-                            showSplashScreen = false
                         }
 
                         if (showSplashScreen) {
-                            SplashScreen(isVisible = true)
+                            // ✅ 3. استخدام SplashScreen مع دالة التخطي الجديدة
+                            SplashScreen(
+                                isVisible = true,
+                                onSkipClicked = hideSplashScreen,
+                                onVideoEnd = hideSplashScreen,// ⬅️ تمرير دالة الإخفاء
+                                fontSize = fontSize
+                            )
                         } else if (isLoading) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -401,7 +400,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                        SplashScreen(isVisible = isSplashVisible, fontSize = fontSize)
                     }
                 }
             }

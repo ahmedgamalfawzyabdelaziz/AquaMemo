@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 import com.facebook.appevents.AppEventsLogger
+import com.facebook.appevents.AppEventsConstants
 
 @Singleton
 class BillingManager
@@ -170,7 +171,8 @@ class BillingManager
     }
     private fun logFacebookPurchase(purchase: Purchase) {
         val logger = AppEventsLogger.newLogger(context)
-        logger.logEvent("Subscription_Activated")
+        // استخدام الحدث القياسي للاشتراك أو الشراء
+        logger.logEvent(AppEventsConstants.EVENT_NAME_SUBSCRIBE)
     }
 
     private fun acknowledgePurchase(purchase: Purchase) {

@@ -90,11 +90,9 @@ fun AquaMemoTheme(
 
     val view = LocalView.current
     if (!view.isInEditMode) {
-        SideEffect {
+        SideEffect   {
             val window = (view.context as Activity).window
-            // 1. Ensure edge-to-edge is enabled (already done correctly)
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            // 2. Control the *appearance* (light/dark icons) of the bars
             val controller = WindowCompat.getInsetsController(window, view)
             controller.isAppearanceLightStatusBars = !useDarkTheme // Light icons on dark status bar, Dark icons on light status bar
             controller.isAppearanceLightNavigationBars = !useDarkTheme // Same logic for navigation bar

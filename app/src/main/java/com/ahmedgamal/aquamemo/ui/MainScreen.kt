@@ -34,9 +34,9 @@ fun MainScreen(
 
     val filterTypes = remember {
         listOf(
-            R.string.filter_3_stages to "3 Stages",
-            R.string.filter_5_stages to "5 Stages",
-            R.string.filter_7_stages to "7 Stages"
+            R.string.filter_type_3_stages to "3 Stages",
+            R.string.filter_type_5_stages to "5 Stages",
+            R.string.filter_type_7_stages to "7 Stages"
         )
     }
 

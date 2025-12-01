@@ -16,8 +16,8 @@ android {
         applicationId = "com.ahmedgamal.aquamemo"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "2.2.5"
+        versionCode = 16
+        versionName = "2.2.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

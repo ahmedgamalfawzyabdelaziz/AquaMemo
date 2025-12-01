@@ -52,12 +52,10 @@ fun CandleDataScreen(
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
     // منع إعادة التركيب غير الضرورية
     val stableFilterType by remember(filterType) { mutableStateOf(filterType) }
     val stableNumberOfCandles by remember(numberOfCandles) { mutableIntStateOf(numberOfCandles) }
     val stableCandleNumberToEdit by remember(candleNumberToEdit) { derivedStateOf { candleNumberToEdit } }
-
     val candlesState = remember { mutableStateListOf<Pair<Int, Long>>() }
     var isLoading by remember { mutableStateOf(true) }
     var shouldNavigate by remember { mutableStateOf(false) }
@@ -145,7 +143,6 @@ fun CandleDataScreen(
                         AdBanner(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
                         )
 
                         Button(

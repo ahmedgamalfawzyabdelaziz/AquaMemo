@@ -1,4 +1,4 @@
-// FilterUtils.kt - النسخة المحسنة
+// FilterUtils.kt
 package com.ahmedgamal.aquamemo.ui
 
 import android.content.Context
@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.ahmedgamal.aquamemo.R
 
-// 🔽 الدوال الموحدة - تستخدم في Composables
 @Composable
 fun getCandleName(candleNumber: Int): String {
     return when (candleNumber) {
@@ -20,7 +19,6 @@ fun getCandleName(candleNumber: Int): String {
         else -> ""
     }
 }
-// 🔽 الدوال الموحدة - تستخدم في ViewModels و Workers
 fun getCandleNameForWorker(candleNumber: Int, context: Context): String {
     return when (candleNumber) {
         1 -> context.getString(R.string.stage_1)

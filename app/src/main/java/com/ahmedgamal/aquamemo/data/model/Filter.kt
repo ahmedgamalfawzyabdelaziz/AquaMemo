@@ -1,3 +1,4 @@
+// Filter.kt
 package com.ahmedgamal.aquamemo.data.model
 
 import androidx.room.Entity

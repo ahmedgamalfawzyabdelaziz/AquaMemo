@@ -64,6 +64,10 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="delete_data_confirmation_message">Are you sure you want to delete all data? This action cannot be undone.</string>
+    <string name="filter_type_3_stages">3 stages</string>
+    <string name="filter_type_5_stages">5 stages</string>
+    <string name="filter_type_7_stages">7 stages</string>
+    <string name="skip">Skip</string>
     <!-- Ads -->
     <string name="premium_features">Premium Features</string>
     <string name="premium_version">Pro Version</string>

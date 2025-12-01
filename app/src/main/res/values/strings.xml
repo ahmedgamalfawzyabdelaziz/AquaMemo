@@ -64,6 +64,10 @@
     <string name="yes">نعم</string>
     <string name="no">لا</string>
     <string name="delete_data_confirmation_message">هل أنت متأكد أنك تريد حذف جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="filter_type_3_stages">3 مراحل</string>
+    <string name="filter_type_5_stages">5 مراحل</string>
+    <string name="filter_type_7_stages">7 مراحل</string>
+    <string name="skip">تخطي</string>
     <!-- الإعلانات -->
     <string name="premium_features">المزايا المميزة</string>
     <string name="premium_version">نسخة برو</string>
@@ -197,7 +201,7 @@
     <string name="view_statistics_description">إحصائيات متقدمة عن استخدام الفلاتر</string>
     <string name="tap_for_details">اضغط للتفاصيل</string>
     <string name="facebook_app_id" translatable="false">813672221641676</string>
-
+    <string name="facebook_client_token" translatable="false">6fbb0f13e1748db0a324c717858da606</string>
     <!-- Widget -->
     <string name="widget_description">عرض أقرب موعد لتغيير شمعة الفلتر</string>
     <string name="loading_widget">جاري تحميل بيانات الويدجت…</string>

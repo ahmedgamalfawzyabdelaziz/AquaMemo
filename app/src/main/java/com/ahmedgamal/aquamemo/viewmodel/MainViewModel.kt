@@ -40,6 +40,7 @@ import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import android.app.Application
+import androidx.work.ExistingWorkPolicy
 import com.ahmedgamal.aquamemo.billing.BillingManager
 
 @HiltViewModel
@@ -360,7 +361,11 @@ class MainViewModel @Inject constructor(
     private fun updateWidgetData() {
         Log.d("MainViewModel", "Enqueuing WidgetUpdateWorker...") // <-- Add this log
         val workRequest = OneTimeWorkRequestBuilder<com.ahmedgamal.aquamemo.widget.WidgetUpdateWorker>().build()
-        WorkManager.getInstance(app.applicationContext).enqueue(workRequest)
+        WorkManager.getInstance(app.applicationContext).enqueueUniqueWork(
+            "widget_update_unique_work", // اسم فريد للعملية
+            ExistingWorkPolicy.REPLACE,  // استبدال أي عملية قديمة معلقة
+            workRequest
+        )
     }
     data class BackupData(
         val filters: List<Filter>,
