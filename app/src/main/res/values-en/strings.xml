@@ -85,6 +85,28 @@
     <string name="ad_load_error">Error code: %d - %s</string>
     <string name="monthly_plan">Monthly Blan</string>
     <string name="yearly_plan">Yearly Blan</string>
+    <!-- TDS Feature -->
+    <string name="tds_tracker_title">Water Quality (TDS)</string>
+    <string name="tds_input_label">TDS Reading (PPM)</string>
+    <string name="add_reading">Log Reading</string>
+    <string name="recent_history">Recent History</string>
+    <string name="tds_chart_title">Quality Trend</string>
+    <string name="no_readings_yet">No readings recorded yet.</string>
+    <string name="pro_feature_locked">Pro Feature Locked 🔒</string>
+    <string name="pro_feature_desc">Track water quality and analyze filter efficiency over time. This feature is for Pro users only.</string>
+    <string name="upgrade_now">Upgrade Now</string>
+    <string name="delete_reading_confirm">Delete this reading?</string>
+    <string name="subscribe_instruction">Go to Settings -> Premium Features</string>
+    <string name="tds_ref_title">Water Quality Guide</string>
+    <string name="tds_ref_subtitle">Use this table to understand TDS readings:</string>
+    <string name="tds_range">Range (PPM)</string>
+    <string name="tds_quality">Quality</string>
+    <string name="tds_level_excellent">Excellent</string>
+    <string name="tds_level_good">Good</string>
+    <string name="tds_level_fair">Fair</string>
+    <string name="tds_level_poor">Poor / Unacceptable</string>
+    <string name="tds_explanation_title">What is TDS?</string>
+    <string name="tds_explanation_text">Total Dissolved Solids. It is mainly controlled by the "RO Membrane" (Stage 4). High readings indicate the Membrane needs replacement.</string>
 
     <!-- Prices -->
     <string name="theme">Theme</string>

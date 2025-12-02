@@ -112,6 +112,7 @@ dependencies {
     implementation(libs.androidx.material3.window.size)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.foundation)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Other Libs
@@ -119,6 +120,9 @@ dependencies {
     implementation(libs.play.services.drive)
     implementation(libs.androidx.hilt.common)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.core)
 
     // Hilt (Dependency Injection)
     implementation(libs.hilt.android)

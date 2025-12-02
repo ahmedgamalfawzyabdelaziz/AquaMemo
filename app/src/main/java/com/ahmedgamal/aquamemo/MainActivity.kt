@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -60,8 +59,11 @@ import com.ahmedgamal.aquamemo.ui.CandlePricesScreen
 import com.ahmedgamal.aquamemo.ui.CustomIntervalsScreen
 import com.ahmedgamal.aquamemo.ui.NotificationScreen
 import android.content.Intent
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import com.ahmedgamal.aquamemo.data.FilterRepository
 import com.ahmedgamal.aquamemo.data.model.NotificationHistory
+import com.ahmedgamal.aquamemo.ui.TdsTrackerScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -297,6 +299,11 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate("notification_screen") {
                                                 launchSingleTop = true
                                             }
+                                        },
+                                                onNavigateToTdsTracker = {
+                                            navController.navigate("tds_tracker_screen") {
+                                                launchSingleTop = true
+                                            }
                                         }
                                     )
                                 }
@@ -395,6 +402,21 @@ class MainActivity : ComponentActivity() {
                                     NotificationScreen(
                                         onBackClick = {
                                             navController.popBackStack()
+                                        }
+                                    )
+                                }
+                                composable("tds_tracker_screen") {
+                                    val context = LocalContext.current
+                                    TdsTrackerScreen(
+                                        onBackClick = {
+                                            navController.popBackStack()
+                                        },
+                                        onNavigateToSubscription = {
+                                            Toast.makeText(
+                                                context,
+                                                context.getString(R.string.subscribe_instruction),
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     )
                                 }

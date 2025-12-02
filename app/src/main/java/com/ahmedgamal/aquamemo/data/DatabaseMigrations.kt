@@ -57,3 +57,19 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         )
     }
 }
+// ✅ الترحيل من الإصدار 5 إلى 6 (إضافة جدول TDS)
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // إنشاء جدول tds_readings الجديد
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tds_readings` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                `value` INTEGER NOT NULL, 
+                `date` INTEGER NOT NULL, 
+                `notes` TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+    }
+}

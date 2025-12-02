@@ -89,10 +89,30 @@
     <string name="theme_light">فاتح</string>
     <string name="theme_dark">داكن</string>
     <string name="theme_system">النظام</string>
-
+    <!-- TDS Feature -->
+    <string name="tds_tracker_title">تتبع جودة المياه (TDS)</string>
+    <string name="tds_input_label">قراءة الأملاح (PPM)</string>
+    <string name="add_reading">تسجيل القراءة</string>
+    <string name="recent_history">السجل الحديث</string>
+    <string name="tds_chart_title">مؤشر الجودة</string>
+    <string name="no_readings_yet">لا توجد قراءات مسجلة.</string>
+    <string name="pro_feature_locked">ميزة احترافية مقفلة 🔒</string>
+    <string name="pro_feature_desc">تتبع جودة المياه وحلل كفاءة الفلتر مع مرور الوقت. هذه الميزة متاحة فقط للمشتركين.</string>
+    <string name="upgrade_now">اشترك الآن</string>
+    <string name="delete_reading_confirm">هل تريد حذف هذه القراءة؟</string>
+    <string name="subscribe_instruction">الذهاب إلى الإعدادات -> المزايا المميزة</string>
+    <string name="tds_ref_title">دليل جودة المياه</string>
+    <string name="tds_ref_subtitle">استخدم هذا الجدول لفهم قراءات جهاز TDS:</string>
+    <string name="tds_range">النطاق (PPM)</string>
+    <string name="tds_quality">الجودة</string>
+    <string name="tds_level_excellent">ممتاز (شرب)</string>
+    <string name="tds_level_good">جيد</string>
+    <string name="tds_level_fair">مقبول</string>
+    <string name="tds_level_poor">سيء / غير مقبول</string>
+    <string name="tds_explanation_title">ما هو TDS؟</string>
+    <string name="tds_explanation_text">هي "الأملاح المذابة الكلية". المسؤول عن تقليلها هو شمعة "الممبرين" (المرحلة الرابعة). ارتفاع هذا الرقم يعني أن الممبرين يحتاج إلى تغيير.</string>
 
     <!-- أسعار (ستتم تعبئتها برمجياً) -->
-    <!-- Billing Manager Strings -->
     <string name="billing_user_canceled">المستخدم ألغى العملية</string>
     <string name="billing_item_owned">المنتج مملوك بالفعل</string>
     <string name="billing_product_not_found">المنتج غير موجود: %s</string>

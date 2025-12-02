@@ -43,6 +43,7 @@ fun HomeScreen(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToTdsTracker: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -58,6 +59,7 @@ fun HomeScreen(
             onNavigateToDataDisplay = onNavigateToDataDisplay,
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToNotifications = onNavigateToNotifications,
+            onNavigateToTdsTracker = onNavigateToTdsTracker,
             maintenanceList = maintenanceList
         )
     }
@@ -67,6 +69,7 @@ fun HomeScreenContent(
     onNavigateToDataDisplay: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToTdsTracker: () -> Unit,
     maintenanceList: List<MaintenanceInfo>
 ) {
     val gradientColors = remember {
@@ -102,6 +105,13 @@ fun HomeScreenContent(
                         titleContentColor = MaterialTheme.colorScheme.primary
                     ),
                     actions = {
+                        IconButton(onClick = onNavigateToTdsTracker) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_tds_device),
+                                contentDescription = "TDS Tracker",
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
                         IconButton(onClick = onNavigateToNotifications) {
                             Icon(
                                 Icons.Default.Notifications,
