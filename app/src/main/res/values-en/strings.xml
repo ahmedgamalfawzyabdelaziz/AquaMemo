@@ -82,7 +82,7 @@
     <string name="ad_error">Ad Error</string>
     <string name="ad_initialization_error">Initialization error: %s</string>
     <string name="ad_unexpected_error">Unexpected error: %s</string>
-    <string name="ad_load_error">Error code: %d - %s</string>
+    <string name="ad_load_error">Error code: %1$d - %2$s</string>
     <string name="monthly_plan">Monthly Blan</string>
     <string name="yearly_plan">Yearly Blan</string>
     <!-- TDS Feature -->
@@ -107,11 +107,16 @@
     <string name="tds_level_poor">Poor / Unacceptable</string>
     <string name="tds_explanation_title">What is TDS?</string>
     <string name="tds_explanation_text">Total Dissolved Solids. It is mainly controlled by the "RO Membrane" (Stage 4). High readings indicate the Membrane needs replacement.</string>
-
+    <string name="technician_contact_title">Filter Technician</string>
+    <string name="technician_phone_label">Technician Phone Number</string>
+    <string name="technician_hint">Enter number with country code (e.g. 2010xxxx)</string>
+    <string name="technician_card_title">Need Help?</string>
+    <string name="call_filter_technician">Call Filter Technician</string>
     <!-- Prices -->
     <string name="theme">Theme</string>
     <string name="theme_system">System</string>
     <!-- Billing Manager Strings -->
+    <string name="btn_call">call</string>
     <string name="billing_user_canceled">User canceled the operation</string>
     <string name="billing_item_owned">Product already owned</string>
     <string name="billing_product_not_found">Product not found: %s</string>

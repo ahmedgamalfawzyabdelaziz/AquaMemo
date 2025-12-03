@@ -27,6 +27,7 @@ class SettingsViewModel @Inject constructor(
     private val app: Application,
     private val settingsRepository: SettingsRepository,
     private val filterRepository: FilterRepository,
+    private val repository: SettingsRepository,
     val billingManager: BillingManager
 ) : ViewModel() {
 
@@ -42,9 +43,20 @@ class SettingsViewModel @Inject constructor(
     val themePreference: StateFlow<String> = settingsRepository.themePreferenceFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "system")
 
-    // ✅ Expose Pro status from BillingManager
     val isPro: StateFlow<Boolean> = billingManager.isPremium
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val technicianPhone = repository.technicianPhone.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+
+    fun saveTechnicianPhone(phone: String) {
+        viewModelScope.launch {
+            repository.saveTechnicianPhone(phone)
+        }
+    }
 
     fun setRemindersEnabled(enabled: Boolean) {
         viewModelScope.launch {

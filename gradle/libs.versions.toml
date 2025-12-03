@@ -61,6 +61,7 @@ androidx-junit = "1.3.0"
 androidx-espresso-core = "3.7.0"
 ui-graphics = "1.9.5"
 foundation = "1.9.5"
+ui-text = "1.9.5"
 
 
 [libraries]
@@ -145,6 +146,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "ui-graphics" }
 androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "ui-text" }
 
 [plugins]
 # Android plugins

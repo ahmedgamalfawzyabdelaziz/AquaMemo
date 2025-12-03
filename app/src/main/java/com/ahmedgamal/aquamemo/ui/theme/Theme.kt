@@ -38,7 +38,7 @@ private val AppDarkColorScheme = darkColorScheme(
     surface = DarkBlueSurfaceVariant, // Use DarkBlueSurfaceVariant defined in Color.kt
     onSurface = LightText,
     surfaceVariant = Color(0xFF42474E), // Adjust as needed
-    onSurfaceVariant = Color(0xFFC2C7CE), // Adjust as needed
+    onSurfaceVariant = Color(0xFF102A43), // Adjust as needed
     outline = Color(0xFF8C9199)
 )
 

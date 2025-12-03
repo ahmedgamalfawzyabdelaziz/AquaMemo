@@ -16,8 +16,8 @@ android {
         applicationId = "com.ahmedgamal.aquamemo"
         minSdk = 26
         targetSdk = 36
-        versionCode = 16
-        versionName = "2.2.7"
+        versionCode = 17
+        versionName = "2.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -113,6 +113,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.ui.text)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Other Libs

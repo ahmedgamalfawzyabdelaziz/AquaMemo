@@ -1,14 +1,17 @@
 package com.ahmedgamal.aquamemo.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -19,6 +22,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -29,11 +34,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,8 +72,14 @@ fun SettingsScreen(
     val context = LocalContext.current
     val activity = context as? Activity
     val restoreCompleted by mainViewModel.restoreCompleted.collectAsState()
+    val technicianPhone by viewModel.technicianPhone.collectAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    // ✅ Collect Pro status and current tone
+    // الحالة المحلية لمنع التحديث المستمر أثناء الكتابة
+    var phoneInput by remember { mutableStateOf("") }
+    rememberScrollState()
+
+    // Collect Pro status
     val isPro by viewModel.isPro.collectAsStateWithLifecycle()
 
     LaunchedEffect(restoreCompleted) {
@@ -72,6 +87,59 @@ fun SettingsScreen(
             LanguageManager.restartApp(activity!!)
         }
     }
+
+    // تحديث الحقل فقط عند فتح الشاشة لأول مرة إذا كانت البيانات موجودة
+    LaunchedEffect(technicianPhone) {
+        if (phoneInput.isEmpty() && technicianPhone.isNotEmpty()) {
+            phoneInput = technicianPhone
+        }
+    }
+
+    // launcher لاختيار جهة اتصال (Picker) مع استخراج الرقم
+    val pickContactLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val contactUri = result.data?.data
+            if (contactUri != null) {
+                // الآن الـ URI يشير لجدول الأرقام مباشرة، لذا العمود NUMBER موجود وصحيح
+                val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                try {
+                    val cursor = context.contentResolver.query(contactUri, projection, null, null, null)
+                    cursor?.use {
+                        if (it.moveToFirst()) {
+                            val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                            if (numberIndex >= 0) {
+                                var number = it.getString(numberIndex)
+                                // تنظيف الرقم
+                                number = number.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+
+                                phoneInput = number
+                                viewModel.saveTechnicianPhone(number)
+                                Toast.makeText(context, context.getString(R.string.data_saved_successfully), Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("SettingsScreen", "Error getting contact number", e)
+                }
+            }
+        }
+    }
+
+    // طلب إذن جهات الاتصال
+    val contactPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // إذا تم منح الإذن، نفتح قائمة اختيار الأرقام
+            val intent = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+            pickContactLauncher.launch(intent)
+        } else {
+            Toast.makeText(context, "يجب منح صلاحية جهات الاتصال لجلب الرقم", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     var showMaintenanceHistory by remember { mutableStateOf(false) }
     if (showMaintenanceHistory) {
         MaintenanceHistoryScreen(
@@ -204,6 +272,15 @@ fun SettingsScreen(
         )
     }
 
+    // حفظ الرقم عند الخروج من الشاشة للتأكيد
+    DisposableEffect(phoneInput) {
+        onDispose {
+            if (phoneInput.isNotEmpty() && phoneInput != technicianPhone) {
+                viewModel.saveTechnicianPhone(phoneInput)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -240,7 +317,7 @@ fun SettingsScreen(
                 SettingsCard(
                     title = stringResource(R.string.filter_reminders),
                     content = {
-                        // ... (Row for enabling reminders remains the same) ...
+                        // صف تفعيل التذكيرات
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -266,7 +343,7 @@ fun SettingsScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // ... (OutlinedButton for reminder time remains the same) ...
+                        // زر وقت التذكير
                         OutlinedButton(
                             onClick = { showTimePickerDialog = true },
                             modifier = Modifier.fillMaxWidth(),
@@ -279,26 +356,22 @@ fun SettingsScreen(
                             Text("${stringResource(R.string.reminder_time)}: $reminderTime")
                         }
 
-                            // ✅ START: MODIFIED Notification Tone Setting Row
+                        // إعداد نغمة الإشعار
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(
-                                    enabled = isPro, // Only clickable if Pro
+                                    enabled = isPro,
                                     onClick = {
                                         try {
-                                            // 1. Ensure the Pro channel exists before opening settings
                                             createProChannelIfNeeded(context)
-
-                                            // 2. Open the settings for the Pro channel
                                             val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
                                                 putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                                                 putExtra(Settings.EXTRA_CHANNEL_ID, AquaMemoApp.PRO_CHANNEL_ID)
                                             }
                                             context.startActivity(intent)
                                         } catch (_: Exception) {
-                                            // Fallback: Open general app notification settings
                                             try {
                                                 val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                                                     putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -324,7 +397,6 @@ fun SettingsScreen(
                                 modifier = Modifier.weight(1f),
                                 color = MaterialTheme.colorScheme.secondary
                             )
-                            // ✅ Show "Customize" text
                             Text(
                                 text = stringResource(R.string.settings_tone_customize),
                                 color = MaterialTheme.colorScheme.secondary.copy(alpha = if (isPro) 1.0f else 0.5f),
@@ -333,13 +405,13 @@ fun SettingsScreen(
                         }
                         if (!isPro) {
                             Text(
-                                text = stringResource(R.string.settings_notification_tone_pro_channel), // Use new string
+                                text = stringResource(R.string.settings_notification_tone_pro_channel),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(start = 40.dp, top = 4.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp)) // فاصل
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // زر تخصيص مدد الشمعات
                         Button(
@@ -350,8 +422,8 @@ fun SettingsScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.surface
                             ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -388,30 +460,26 @@ fun SettingsScreen(
                                     onDismissRequest = { showLanguageMenu = false }
                                 ) {
                                     DropdownMenuItem(
-                                        text = {
-                                            Text(text = arabicText, color = MaterialTheme.colorScheme.secondary)
-                                        },
+                                        text = { Text(text = arabicText, color = MaterialTheme.colorScheme.secondary) },
                                         onClick = {
                                             showLanguageMenu = false
                                             if (activity != null && currentLanguageCode.value != "ar") {
                                                 LanguageManager.setLanguage(context, "ar")
                                                 Handler(Looper.getMainLooper()).postDelayed({
                                                     LanguageManager.restartApp(activity)
-                                                }, 300) // 300ms delay is enough
+                                                }, 300)
                                             }
                                         }
                                     )
                                     DropdownMenuItem(
-                                        text = {
-                                            Text(text = englishText, color = MaterialTheme.colorScheme.secondary)
-                                        },
+                                        text = { Text(text = englishText, color = MaterialTheme.colorScheme.secondary) },
                                         onClick = {
                                             showLanguageMenu = false
                                             if (activity != null && currentLanguageCode.value != "en") {
                                                 LanguageManager.setLanguage(context, "en")
                                                 Handler(Looper.getMainLooper()).postDelayed({
                                                     LanguageManager.restartApp(activity)
-                                                }, 300) // 300ms delay is enough
+                                                }, 300)
                                             }
                                         }
                                     )
@@ -421,7 +489,7 @@ fun SettingsScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // ... (Font Size Row remains the same) ...
+                        // حجم الخط
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -443,37 +511,21 @@ fun SettingsScreen(
                                     onDismissRequest = { showFontSizeMenu = false }
                                 ) {
                                     DropdownMenuItem(
-                                        text = {
-                                            Text(text = smallText, color = MaterialTheme.colorScheme.secondary)
-                                        },
-                                        onClick = {
-                                            viewModel.setFontSize("small")
-                                            showFontSizeMenu = false
-                                        }
+                                        text = { Text(text = smallText, color = MaterialTheme.colorScheme.secondary) },
+                                        onClick = { viewModel.setFontSize("small"); showFontSizeMenu = false }
                                     )
                                     DropdownMenuItem(
-                                        text = {
-                                            Text(text = mediumText, color = MaterialTheme.colorScheme.secondary)
-                                        },
-                                        onClick = {
-                                            viewModel.setFontSize("medium")
-                                            showFontSizeMenu = false
-                                        }
+                                        text = { Text(text = mediumText, color = MaterialTheme.colorScheme.secondary) },
+                                        onClick = { viewModel.setFontSize("medium"); showFontSizeMenu = false }
                                     )
                                     DropdownMenuItem(
-                                        text = {
-                                            Text(text = largeText, color = MaterialTheme.colorScheme.secondary)
-                                        },
-                                        onClick = {
-                                            viewModel.setFontSize("large")
-                                            showFontSizeMenu = false
-                                        }
+                                        text = { Text(text = largeText, color = MaterialTheme.colorScheme.secondary) },
+                                        onClick = { viewModel.setFontSize("large"); showFontSizeMenu = false }
                                     )
                                 }
                             }
                         }
 
-                        // ... (Theme Selection Row remains the same) ...
                         var showThemeMenu by remember { mutableStateOf(false) }
                         val currentThemePref by viewModel.themePreference.collectAsStateWithLifecycle()
 
@@ -486,6 +538,7 @@ fun SettingsScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        // الثيم
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -494,18 +547,18 @@ fun SettingsScreen(
                                 imageVector = Icons.Default.BrightnessMedium,
                                 contentDescription = stringResource(R.string.theme),
                                 modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.secondary
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = stringResource(R.string.theme),
                                 modifier = Modifier.weight(1f),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.secondary
                             )
                             Box {
                                 Text(
                                     text = currentThemeDisplay,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.clickable { showThemeMenu = true }
                                 )
                                 DropdownMenu(
@@ -525,9 +578,9 @@ fun SettingsScreen(
                             }
                         }
 
-                        // ... (Candle Prices Card remains the same) ...
+                        // كارت الأسعار
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(12.dp)
@@ -570,6 +623,7 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // النسخ الاحتياطي
                 SettingsCard(
                     title = stringResource(R.string.backup_restore),
                     content = {
@@ -608,6 +662,7 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // سجل الصيانة
                 SettingsCard(
                     title = stringResource(R.string.maintenance_history),
                     content = {
@@ -632,8 +687,83 @@ fun SettingsScreen(
                         )
                     }
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // --- كارت فني الفلاتر
+                SettingsCard(
+                    title = stringResource(R.string.technician_contact_title),
+                    content = {
+                        OutlinedTextField(
+                            value = phoneInput,
+                            onValueChange = {
+                                // السماح فقط بالأرقام وعلامة +
+                                if (it.all { char -> char.isDigit() || char == '+' || char == ' ' }) {
+                                    phoneInput = it
+                                }
+                            },
+                            label = { Text(stringResource(R.string.technician_phone_label)) },
+                            placeholder = { Text("010xxxxxxx") },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Phone,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    viewModel.saveTechnicianPhone(phoneInput)
+                                    keyboardController?.hide()
+                                    Toast.makeText(context, context.getString(R.string.data_saved_successfully), Toast.LENGTH_SHORT).show()
+                                }
+                            ),
+                            singleLine = true,
+                            shape = RoundedCornerShape(8.dp),
+
+                            // زر اختيار جهة الاتصال داخل الحقل (Trailing Icon)
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    if (ContextCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.READ_CONTACTS
+                                        ) != PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        contactPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                                    } else {
+                                        // نستخدم Intent مخصص لاختيار "رقم هاتف" تحديداً
+                                        val intent = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+                                        pickContactLauncher.launch(intent)
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Contacts,
+                                        contentDescription = "Pick Contact",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            // ✅ ضبط الألوان لتتناسب مع الخلفية الشفافة لـ SettingsCard
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = stringResource(R.string.technician_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // المزايا المميزة (Premium)
                 val isPremium by viewModel.billingManager.isPremium.collectAsStateWithLifecycle()
                 val productDetails by viewModel.billingManager.subscriptionDetails.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) {
@@ -700,6 +830,7 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // الإحصائيات المتقدمة
                 SettingsCard(
                     title = stringResource(R.string.advanced_statistics),
                     content = {
@@ -727,6 +858,7 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // زر حذف البيانات
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -845,7 +977,7 @@ fun PremiumFeatureItem(
                 Text(
                     text = price,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (isPurchased) Color(0xFF2E7D32) else MaterialTheme.colorScheme.secondary,
+                    color = if (isPurchased) Color(0xFF2E7D32) else MaterialTheme.colorScheme.tertiary,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 8.dp)
                 )

@@ -82,7 +82,7 @@
     <string name="ad_error">خطأ في الإعلان</string>
     <string name="ad_initialization_error">خطأ في التهيئة: %s</string>
     <string name="ad_unexpected_error">خطأ غير متوقع: %s</string>
-    <string name="ad_load_error">كود الخطأ: %d - %s</string>
+    <string name="ad_load_error">كود الخطأ: %1$d - %2$s</string>
     <string name="monthly_plan">الخطة الشهرية</string>
     <string name="yearly_plan">الخطة السنوية</string>
     <string name="theme">ثيم</string>
@@ -111,6 +111,12 @@
     <string name="tds_level_poor">سيء / غير مقبول</string>
     <string name="tds_explanation_title">ما هو TDS؟</string>
     <string name="tds_explanation_text">هي "الأملاح المذابة الكلية". المسؤول عن تقليلها هو شمعة "الممبرين" (المرحلة الرابعة). ارتفاع هذا الرقم يعني أن الممبرين يحتاج إلى تغيير.</string>
+    <string name="technician_contact_title">فني الفلاتر</string>
+    <string name="technician_phone_label">رقم هاتف الفني</string>
+    <string name="technician_hint">أدخل الرقم مع كود الدولة (مثال 2010xxxx)</string>
+    <string name="technician_card_title">تحتاج مساعدة؟</string>
+    <string name="btn_call">إتصال</string>
+    <string name="call_filter_technician">اتصل بفني الفلاتر</string>
 
     <!-- أسعار (ستتم تعبئتها برمجياً) -->
     <string name="billing_user_canceled">المستخدم ألغى العملية</string>

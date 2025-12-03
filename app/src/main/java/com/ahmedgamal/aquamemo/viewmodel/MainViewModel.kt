@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.ExistingWorkPolicy
 import com.ahmedgamal.aquamemo.billing.BillingManager
 import com.ahmedgamal.aquamemo.data.FilterRepository
 import com.ahmedgamal.aquamemo.data.SettingsRepository
@@ -42,7 +43,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import androidx.work.ExistingWorkPolicy
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -54,6 +54,7 @@ class MainViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    // --- العملات ---
     val selectedCurrency = settingsRepository.selectedCurrencyFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, "USD")
 
@@ -63,6 +64,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    // --- رقم الفني ---
+    val technicianPhone = settingsRepository.technicianPhone
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
+    // --- الفلاتر ---
     val allFilters: Flow<List<Filter>> = filterRepository.getAllFilters()
         .distinctUntilChanged()
         .flowOn(Dispatchers.IO)
@@ -78,7 +84,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // ✅ هذه هي الدالة التي كانت مفقودة وتسببت في الأخطاء
     fun getFiltersByType(filterType: String): Flow<List<Filter>> {
         return filterRepository.getFiltersByType(filterType)
             .flowOn(Dispatchers.IO)
@@ -269,9 +274,9 @@ class MainViewModel @Inject constructor(
             val reminderTime = settingsRepository.reminderTimeFlow.first()
             val fontSize = settingsRepository.fontSizeFlow.first()
             val selectedCurrency = settingsRepository.selectedCurrencyFlow.first()
+            val technicianPhone = settingsRepository.technicianPhone.first()
             val sharedPref = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
             val language = sharedPref.getString("language", "en") ?: "en"
-
             val intervals = mutableMapOf<String, Int>()
             for (i in 1..7) {
                 val interval = settingsRepository.getIntervalForCandle(i).first()
@@ -284,6 +289,7 @@ class MainViewModel @Inject constructor(
                 fontSize = fontSize,
                 selectedCurrency = selectedCurrency,
                 language = language,
+                technicianPhone = technicianPhone,
                 customIntervals = intervals
             )
         }
@@ -340,6 +346,10 @@ class MainViewModel @Inject constructor(
         settingsRepository.setFontSize(settings.fontSize)
         settingsRepository.setSelectedCurrency(settings.selectedCurrency)
 
+        if (!settings.technicianPhone.isNullOrEmpty()) {
+            settingsRepository.saveTechnicianPhone(settings.technicianPhone)
+        }
+
         if (settings.customIntervals.isNotEmpty()) {
             settings.customIntervals.forEach { (candleId, interval) ->
                 settingsRepository.setIntervalForCandle(candleId.toInt(), interval)
@@ -378,7 +388,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // ✅ تحديث الويدجت باستخدام enqueueUniqueWork لحل مشكلة Binder Transaction
     private fun updateWidgetData() {
         Log.d("MainViewModel", "Requesting Widget Update...")
         val workRequest = OneTimeWorkRequestBuilder<com.ahmedgamal.aquamemo.widget.WidgetUpdateWorker>().build()
@@ -404,6 +413,7 @@ class MainViewModel @Inject constructor(
         val fontSize: String,
         val language: String,
         val selectedCurrency: String,
+        val technicianPhone: String? = null,
         val customIntervals: Map<String, Int> = emptyMap()
     )
 }

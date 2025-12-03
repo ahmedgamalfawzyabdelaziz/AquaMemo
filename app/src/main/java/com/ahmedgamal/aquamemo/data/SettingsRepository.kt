@@ -1,5 +1,6 @@
 package com.ahmedgamal.aquamemo.data
 
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -8,9 +9,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 private val CANDLE_1_INTERVAL_KEY = intPreferencesKey("candle_1_interval")
 private val CANDLE_2_INTERVAL_KEY = intPreferencesKey("candle_2_interval")
@@ -22,6 +26,7 @@ private val CANDLE_7_INTERVAL_KEY = intPreferencesKey("candle_7_interval")
 
 @Singleton
 class SettingsRepository @Inject constructor(
+    private val context: Context,
     private val dataStore: DataStore<Preferences>
 ) {
     private val remindersEnabledKey = booleanPreferencesKey("reminders_enabled")
@@ -29,6 +34,7 @@ class SettingsRepository @Inject constructor(
     private val fontSizeKey = stringPreferencesKey("font_size")
     private val selectedCurrencyKey = stringPreferencesKey("selected_currency")
     private val themePreferenceKey = stringPreferencesKey("theme_preference")
+    val technicianphonekey = stringPreferencesKey("technician_phone")
     val remindersEnabledFlow: Flow<Boolean> = dataStore.data
         .map { preferences ->
             preferences[remindersEnabledKey] ?: true
@@ -57,6 +63,25 @@ class SettingsRepository @Inject constructor(
             preferences[themePreferenceKey] ?: "system" // Default to system
         }
         .distinctUntilChanged()
+
+    val technicianPhone: Flow<String> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[technicianphonekey] ?: ""
+        }
+
+    // أضف هذه الدالة لحفظ الرقم
+    suspend fun saveTechnicianPhone(phone: String) {
+        dataStore.edit { preferences ->
+            preferences[technicianphonekey] = phone
+        }
+    }
 
 
     suspend fun setRemindersEnabled(enabled: Boolean) {
