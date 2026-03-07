@@ -1,13 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    //alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.firebase.crashlytics)
 }
-
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+}
 android {
     namespace = "com.ahmedgamal.aquamemo"
     compileSdk = 36
@@ -16,21 +19,19 @@ android {
         applicationId = "com.ahmedgamal.aquamemo"
         minSdk = 26
         targetSdk = 36
-        versionCode = 17
-        versionName = "2.3.0"
+        versionCode = 19
+        versionName = "2.3.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
-    ksp {
-        arg("room.schemaLocation", "$projectDir/schemas")
-        arg("room.incremental", "true")
-    }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-
+    //noinspection WrongGradleMethod
     kotlin {
         jvmToolchain(21)
     }
@@ -51,7 +52,6 @@ android {
         }
     }
 
-    buildToolsVersion = "35.0.1"
     signingConfigs {
         create("release") {
             storeFile = file(project.property("RELEASE_STORE_FILE") as String)
