@@ -13,14 +13,15 @@ ksp {
 }
 android {
     namespace = "com.ahmedgamal.aquamemo"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.ahmedgamal.aquamemo"
         minSdk = 26
+        //noinspection OldTargetApi
         targetSdk = 36
-        versionCode = 19
-        versionName = "2.3.1.1"
+        versionCode = 20
+        versionName = "2.3.1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     }
